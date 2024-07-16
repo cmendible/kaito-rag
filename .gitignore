@@ -491,3 +491,6 @@ override.tf.json
 # Ignore Terraform CLI configuration files
 .terraformrc
 terraform.rc
+
+# Allow the `log` directory to be tracked since it is usually used for a Tarreform module for Azure Analytics Workspace 
+!**/infra/terraform/modules/log 
