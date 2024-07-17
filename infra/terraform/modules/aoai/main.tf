@@ -26,8 +26,8 @@ resource "azurerm_cognitive_deployment" "embedding" {
   }
 }
 
-# # resource "azurerm_role_assignment" "openai_user" {
-# #   scope                = azurerm_cognitive_account.openai.id
-# #   role_definition_name = "Cognitive Services OpenAI User"
-# #   principal_id         = var.principal_id
-# # }
+resource "azurerm_role_assignment" "openai_user" {
+  scope                = azurerm_cognitive_account.openai.id
+  role_definition_name = "Cognitive Services OpenAI User"
+  principal_id         = var.principal_id  
+}

@@ -16,6 +16,12 @@ variable "name" {
   nullable    = false
 }
 
+variable "principal_id" {
+  description = "(Required) Specifies the principal ID of the user assigned identity."
+  type        = string
+  nullable    = false
+}
+
 variable "tags" {
   description = "(Optional) Specifies the tags for this resource."
   type        = map(any)

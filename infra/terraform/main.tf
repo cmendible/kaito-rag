@@ -67,6 +67,7 @@ module "openai" {
   resource_group_name = azurerm_resource_group.rg.name
   location            = var.location
   name                = local.name_openai
+  principal_id        = module.mi.principal_id  
   tags                = var.tags
 }
 

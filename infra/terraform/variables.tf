@@ -139,7 +139,7 @@ variable "search_sku" {
 variable "search_sku_semantic_search" {
   description = "(Optional) Specifies the Semantic Search SKU which should be used for this Azure AI Search Service. Possible values are `free`, `standard` and `null` if no Semantic Search should be used. Defaults to `standard`."
   type        = string
-  default     = "standard"
+  default     = "free"
 
   validation {
     condition     = var.search_sku != "free" || var.search_sku_semantic_search == null
