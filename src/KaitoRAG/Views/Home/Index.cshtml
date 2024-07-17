@@ -1,0 +1,29 @@
+﻿@model HomeModel
+@{
+    ViewData[@"Title"] = @"Kaito-RAG";
+}
+
+<div class="container-fluid mt-2">
+    <div id="globalDocumentsContainer">
+        <partial name="_HomeActionsPartial" model="@Model" />
+    </div>
+
+    <div class="text-center">
+        <div id="webchat-container">
+            <div id="webchat" role="main"></div>
+        </div>
+    </div>
+
+</div>
+
+@section Header {
+    @{
+        await Html.RenderPartialAsync(@"_HomeHeaderPartial");
+    }
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync(@"_HomeScriptsPartial");
+    }
+}

@@ -1,0 +1,2 @@
+!# Allow the all files from `wwwroot`directory to be tracked 
+!**/wwwroot/lib/**/

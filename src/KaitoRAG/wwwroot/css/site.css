@@ -1,0 +1,72 @@
+html {
+    position: relative;
+    min-height: 100%;
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+.mdi-microsoft-teams {
+    font-size: 22px;
+    line-height: 0;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    white-space: nowrap;
+    line-height: 3.125em;
+}
+
+.btn-ms-teams {
+    color: #fff;
+    background-color: #6264a2;
+    border-color: #6264a2;
+}
+
+    .btn-ms-teams:hover {
+        color: #fff;
+        background-color: #43446e;
+        border-color: #797bc8;
+    }
+
+    .btn-check:focus + .btn-ms-teams, .btn-ms-teams:focus {
+        color: #fff;
+        background-color: #43446e;
+        border-color: #797bc8;
+        box-shadow: 0 0 0 0.25rem rgba(49, 132, 253, 0.5);
+    }
+
+    .btn-check:checked + .btn-ms-teams, .btn-check:active + .btn-ms-teams, .btn-ms-teams:active, .btn-ms-teams.active, .show > .btn-ms-teams.dropdown-toggle {
+        color: #fff;
+        background-color: #797bc8;
+        border-color: #0a53be;
+    }
+
+{
+    color: #fff;
+    background-color: #6264a2;
+    border-color: #6264a2;
+}
+
+.navbar, .footer {
+    padding-left: 1rem;
+}
+
+#webchat-container {
+    margin-top: 1rem;
+    height: calc(100vh - 12rem);
+    border: solid 1px rgb(222, 226, 230);
+    border-radius: 0.5em;
+    padding: 0.1rem;
+}
+
+#webchat {
+    height: 100%;
+    width: 100%;
+}
