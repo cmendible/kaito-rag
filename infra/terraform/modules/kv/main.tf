@@ -1,3 +1,9 @@
+data "azurerm_client_config" "current" {}
+
+data "azuread_user" "current_user" {
+  object_id = data.azurerm_client_config.current.object_id
+}
+
 resource "azurerm_key_vault" "kv" {
   name                       = var.name
   location                   = var.location
@@ -16,4 +22,21 @@ resource "azurerm_key_vault" "kv" {
       "Get",
     ]
   }
+}
+
+resource "azurerm_key_vault_access_policy" "curent_user_principal" {
+  key_vault_id = azurerm_key_vault.kv.id
+  tenant_id    = var.tenant_id
+  object_id    = data.azuread_user.current_user.object_id
+
+  secret_permissions = [
+    "Backup",
+    "Delete",
+    "Get",
+    "List",
+    "Purge",
+    "Recover",
+    "Restore",
+    "Set"
+  ]
 }

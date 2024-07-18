@@ -126,6 +126,7 @@ module "bot" {
   application_insights_app_id              = module.application_insights.appi_aap_id
   application_insights_instrumentation_key = module.application_insights.appi_instrumentation_key
   backend_endpoint                         = var.bot_backend_endpoint
+  key_vault_id                             = module.kv.id
 }
 
 module "virtual_network" {

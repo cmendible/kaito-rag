@@ -37,7 +37,6 @@ provider "azurerm" {
     }
     key_vault {
       purge_soft_deleted_secrets_on_destroy = true
-      recover_soft_deleted_secrets          = true
     }
     resource_group {
       # This flag is set to mitigate an open bug in Terraform.

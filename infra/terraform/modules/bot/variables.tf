@@ -82,3 +82,9 @@ variable "application_insights_app_id" {
   type        = string
   nullable    = false
 }
+
+variable "key_vault_id" {
+  description = "(Required) Specifies the resource id of the Azure Key Vault where to store secrets created by the Azure Bot."
+  type        = string
+  nullable    = false
+}

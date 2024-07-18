@@ -86,3 +86,15 @@ resource "azurerm_bot_channel_ms_teams" "bot_ms_teams" {
   location            = azurerm_bot_service_azure_bot.bot.location
   resource_group_name = azurerm_bot_service_azure_bot.bot.resource_group_name
 }
+
+resource "azurerm_key_vault_secret" "kv-directline-secret" {
+  name         = "${var.name}-directline-secret"
+  value        = [for s in azurerm_bot_channel_directline.bot_directline.site : s.key][0]
+  key_vault_id = var.key_vault_id
+}
+
+resource "azurerm_key_vault_secret" "kv-bot-password" {
+  name         = "${var.name}-bot-password"
+  value        = local.create_bot_app ? azuread_application_password.bot_app_password[0].value : ""
+  key_vault_id = var.key_vault_id
+}
