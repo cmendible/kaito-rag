@@ -25,28 +25,7 @@ locals {
   network_plugin_mode            = var.aks_network_plugin_mode == null ? "" : lower(var.aks_network_plugin_mode)
   is_network_plugin_mode_overlay = local.network_plugin_mode == "overlay"
   is_network_plugin_azure        = lower(var.aks_network_plugin) == "azure"
-
-  kaito_identity_name = "ai-toolchain-operator-${lower(local.name_aks)}"
-
-  #   allowed_ips = var.use_private_endpoints ? concat(var.allowed_ips, ["${chomp(data.http.current_ip[0].response_body)}"]) : var.allowed_ips
-  #   storage_account_name    = "${var.storage_account_name}${local.sufix}"
-  #   azopenai_name           = "${var.azopenai_name}${local.name_sufix}"
-  #   content_safety_name     = "${var.content_safety_name}${local.name_sufix}"
-  #   cognitive_services_name = "${var.cognitive_services_name}${local.name_sufix}"
-  #   speech_name             = "${var.speech_name}${local.name_sufix}"
-  #   vision_name             = "${var.vision_name}${local.name_sufix}"
-  #   bing_name               = "${var.bing_name}${local.name_sufix}"
-  #   search_name             = "${var.search_name}${local.name_sufix}"
-  #   form_recognizer_name    = "${var.form_recognizer_name}${local.name_sufix}"
-  #   apim_name               = "${var.apim_name}${local.name_sufix}"
-  #   appi_name               = "${var.appi_name}${local.name_sufix}"
-  #   log_name                = "${var.log_name}${local.name_sufix}"
-  #   cae_name                = "${var.cae_name}${local.name_sufix}"
-  #   ca_chat_name            = "${var.ca_chat_name}${local.name_sufix}"
-  #   ca_prep_docs_name       = "${var.ca_prep_docs_name}${local.name_sufix}"
-  #   ca_aihub_name           = "${var.ca_aihub_name}${local.name_sufix}"
-  #   func_name               = "plugin${local.sufix}"
-  #   cv_name                 = "${var.cv_name}${local.name_sufix}"
+  kaito_identity_name            = "ai-toolchain-operator-${lower(local.name_aks)}"
 }
 
 resource "azurerm_resource_group" "rg" {
@@ -67,7 +46,7 @@ module "openai" {
   resource_group_name = azurerm_resource_group.rg.name
   location            = var.location
   name                = local.name_openai
-  principal_id        = module.mi.principal_id  
+  principal_id        = module.mi.principal_id
   tags                = var.tags
 }
 
@@ -90,6 +69,17 @@ module "st" {
   account_tier             = var.storage_account_tier
   account_replication_type = var.storage_account_replication_type
   tags                     = var.tags
+}
+
+module "cosmos" {
+  source                      = "./modules/cosmos"
+  resource_group_name         = azurerm_resource_group.rg.name
+  location                    = var.location
+  name                        = var.cosmos_name
+  database_name               = var.cosmos_database_name
+  container_name_chat_history = var.cosmos_container_name_chat_history
+  tags                        = var.tags
+
 }
 
 module "log_analytics_workspace" {

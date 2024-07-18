@@ -15,10 +15,10 @@ variable "suffix" {
 }
 
 variable "location" {
-  description = "(Required) Specifies the location for the resource group and most of its resources. Defaults to `francecentral`"
+  description = "(Required) Specifies the location for the resource group and most of its resources. Defaults to `eastus2`"
   type        = string
   nullable    = false
-  default     = "francecentral"
+  default     = "eastus2"
 }
 
 variable "tags" {
@@ -38,7 +38,8 @@ variable "resource_group_name" {
   default     = "rg-kaito-rag"
 }
 
-/* SSh KEY */
+/* SSH KEY */
+
 variable "ssh_key_name" {
   description = "(Required) Specifies the name of the SSH Key resource. Changing this forces a new resource to be created."
   type        = string
@@ -86,6 +87,29 @@ variable "storage_account_replication_type" {
     condition     = can(regex("^(LRS|GRS|RAGRS|ZRS|GZRS|RAGZRS)$", var.storage_account_replication_type))
     error_message = "Invalid account_replication_type. Valid options are `LRS`, `GRS`, `RAGRS`, `ZRS`, `GZRS` and `RAGZRS`."
   }
+}
+
+/* COSMOS DB */
+
+variable "cosmos_name" {
+  description = "(Required) Specifies the name of the Cosmos DB."
+  type        = string
+  nullable    = false
+  default     = "cosmos-kaito-rag"
+}
+
+variable "cosmos_database_name" {
+  description = "(Required) Specifies the name of the database in CosmosDB."
+  type        = string
+  nullable    = false
+  default     = "kaito-rag"
+}
+
+variable "cosmos_container_name_chat_history" {
+  description = "(Required) Specifies the name of the container in CosmosDB that will store the chat history indexed by `userId`."
+  type        = string
+  nullable    = false
+  default     = "kaito-rag-chat-history"
 }
 
 /* LOG ANALYTICS WORKSPACE */

@@ -1,5 +1,5 @@
 resource "azapi_update_resource" "enable_kaito" {
-  type        = "Microsoft.ContainerService/managedClusters@2024-02-02-preview"
+  type        = "Microsoft.ContainerService/managedClusters@2024-03-02-preview"
   resource_id = var.aks_id
 
   body = jsonencode({
@@ -67,12 +67,12 @@ resource "kubectl_manifest" "kaito_service_account" {
   depends_on = [kubernetes_namespace.namespace]
 }
 
-resource "kubectl_manifest" "kaito_workspace_falcon_7b_instruct" {
+resource "kubectl_manifest" "kaito_workspace_mistral_7b_instruct" {
   yaml_body = <<-EOF
     apiVersion: kaito.sh/v1alpha1
     kind: Workspace
     metadata:
-      name: workspace-falcon-7b-instruct
+      name: workspace-mistral-7b-instruct
       namespace: ${var.kaito_aks_namespace}
       annotations:
         kaito.sh/enablelb: "False"
@@ -81,10 +81,10 @@ resource "kubectl_manifest" "kaito_workspace_falcon_7b_instruct" {
       instanceType: "${var.kaito_instance_type_vm_size}"
       labelSelector:
         matchLabels:
-          apps: falcon-7b-instruct
+          apps: mistral-7b-instruct
     inference:
       preset:
-        name: "falcon-7b-instruct"
+        name: "mistral-7b-instruct"
     EOF
 
   depends_on = [
@@ -93,48 +93,74 @@ resource "kubectl_manifest" "kaito_workspace_falcon_7b_instruct" {
   ]
 }
 
-resource "kubectl_manifest" "ingress_kaito_workspace_falcon_7b_instruct" {
-  yaml_body = <<-EOF
-    apiVersion: networking.k8s.io/v1
-    kind: Ingress
-    metadata:
-      name: kaito-falcon-7b-instruct
-      annotations:
-        cert-manager.io/cluster-issuer: letsencrypt-nginx
-        cert-manager.io/acme-challenge-type: http01 
-        nginx.ingress.kubernetes.io/affinity: "cookie"
-        nginx.ingress.kubernetes.io/proxy-connect-timeout: "600"
-        nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
-        nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
-        nginx.ingress.kubernetes.io/upstream-keepalive-timeout: "600"
-        nginx.ingress.kubernetes.io/keep-alive: "600"
-        nginx.ingress.kubernetes.io/proxy-buffering: "off"
-        nginx.ingress.kubernetes.io/enable-cors: "true"
-        nginx.ingress.kubernetes.io/cors-allow-origin: "*"
-        nginx.ingress.kubernetes.io/cors-allow-credentials: "false"
-    spec:
-      ingressClassName: nginx
-      tls:
-      - hosts:
-        - kaito-falcon-7b-instruct.${var.dns_zone_name}
-        secretName: kaito-falcon-7b-instruct-tls
-      rules:
-      - host: kaito-falcon-7b-instruct.${var.dns_zone_name}
-        http:
-          paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: workspace-falcon-7b-instruct
-                port:
-                  number: 80
-    EOF
+# # resource "kubectl_manifest" "kaito_workspace_falcon_7b_instruct" {
+# #   yaml_body = <<-EOF
+# #     apiVersion: kaito.sh/v1alpha1
+# #     kind: Workspace
+# #     metadata:
+# #       name: workspace-falcon-7b-instruct
+# #       namespace: ${var.kaito_aks_namespace}
+# #       annotations:
+# #         kaito.sh/enablelb: "False"
+# #     resource:
+# #       count: 1
+# #       instanceType: "${var.kaito_instance_type_vm_size}"
+# #       labelSelector:
+# #         matchLabels:
+# #           apps: falcon-7b-instruct
+# #     inference:
+# #       preset:
+# #         name: "falcon-7b-instruct"
+# #     EOF
 
-  depends_on = [
-    kubectl_manifest.kaito_workspace_falcon_7b_instruct
-  ]
-}
+# #   depends_on = [
+# #     azurerm_federated_identity_credential.kaito_federated_identity_credential,
+# #     kubectl_manifest.kaito_service_account
+# #   ]
+# # }
+
+# # resource "kubectl_manifest" "ingress_kaito_workspace_falcon_7b_instruct" {
+# #   yaml_body = <<-EOF
+# #     apiVersion: networking.k8s.io/v1
+# #     kind: Ingress
+# #     metadata:
+# #       name: kaito-falcon-7b-instruct
+# #       annotations:
+# #         cert-manager.io/cluster-issuer: letsencrypt-nginx
+# #         cert-manager.io/acme-challenge-type: http01 
+# #         nginx.ingress.kubernetes.io/affinity: "cookie"
+# #         nginx.ingress.kubernetes.io/proxy-connect-timeout: "600"
+# #         nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+# #         nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+# #         nginx.ingress.kubernetes.io/upstream-keepalive-timeout: "600"
+# #         nginx.ingress.kubernetes.io/keep-alive: "600"
+# #         nginx.ingress.kubernetes.io/proxy-buffering: "off"
+# #         nginx.ingress.kubernetes.io/enable-cors: "true"
+# #         nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+# #         nginx.ingress.kubernetes.io/cors-allow-credentials: "false"
+# #     spec:
+# #       ingressClassName: nginx
+# #       tls:
+# #       - hosts:
+# #         - kaito-falcon-7b-instruct.${var.dns_zone_name}
+# #         secretName: kaito-falcon-7b-instruct-tls
+# #       rules:
+# #       - host: kaito-falcon-7b-instruct.${var.dns_zone_name}
+# #         http:
+# #           paths:
+# #           - path: /
+# #             pathType: Prefix
+# #             backend:
+# #               service:
+# #                 name: workspace-falcon-7b-instruct
+# #                 port:
+# #                   number: 80
+# #     EOF
+
+# #   depends_on = [
+# #     kubectl_manifest.kaito_workspace_falcon_7b_instruct
+# #   ]
+# # }
 
 
 resource "azurerm_federated_identity_credential" "workload_federated_identity_credential" {
