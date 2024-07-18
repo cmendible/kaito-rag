@@ -10,34 +10,40 @@ variable "name" {
   nullable    = false
 }
 
-variable "bot_location" {
+variable "location" {
   description = "(Optional) Specifies the location of the Azure Bot. Currently an Azure Bot can only be deployed in the following locations: `global`, `westeurope` or `centralindia`. Defaults to `global`."
   type        = string
   nullable    = false
   default     = "global"
 
   validation {
-    condition     = contains(["global", "westeurope", "centralindia"], var.bot_location)
+    condition     = contains(["global", "westeurope", "centralindia"], var.location)
     error_message = "The Azure Bot location is incorrect. Possible values are `global`, `westeurope` or `centralindia`."
   }
 }
 
-variable "bot_user_assigned_identity_location" {
+variable "user_assigned_identity_location" {
   description = "(Optional) Specifies the location of the Azure Bot User Assigned Identity. This value is ignored when `bot_type` is `SingleTenant` or `MultiTenant`."
   type        = string
   default     = null
 }
 
-variable "bot_type" {
+variable "type" {
   description = "(Optional) Specifies the type of the Azure Bot. Possible values are `SingleTenant`, `MultiTenant` or `functions`. Defaults to `SingleTenant`."
   type        = string
   nullable    = false
   default     = "SingleTenant"
 
   validation {
-    condition     = contains(["SingleTenant", "MultiTenant", "UserAssignedMSI"], var.bot_type)
+    condition     = contains(["SingleTenant", "MultiTenant", "UserAssignedMSI"], var.type)
     error_message = "The Azure Bot type is incorrect. Possible values are `SingleTenant`, `MultiTenant` or `functions`."
   }
+}
+
+variable "backend_endpoint" {
+  description = "(Required) Specifies the backend endpoint of the Azure Bot. This value is also known as the messaging endpoint."
+  type        = string
+  nullable    = false
 }
 
 variable "sku" {

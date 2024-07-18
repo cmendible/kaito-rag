@@ -41,6 +41,19 @@ module "mi" {
   name                = local.name_manage_identity
 }
 
+module "kv" {
+  source                     = "./modules/kv"
+  location                   = azurerm_resource_group.rg.location
+  resource_group_name        = azurerm_resource_group.rg.name
+  name                       = var.key_vault_name
+  tenant_id                  = data.azurerm_client_config.current.tenant_id
+  principal_id               = module.mi.principal_id
+  soft_delete_retention_days = var.key_vault_soft_delete_retention_days
+  sku                        = var.key_vault_sku
+  tags                       = var.tags
+}
+
+
 module "openai" {
   source              = "./modules/aoai"
   resource_group_name = azurerm_resource_group.rg.name
@@ -51,14 +64,15 @@ module "openai" {
 }
 
 module "search" {
-  source              = "./modules/search"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = var.location
-  name                = local.name_search
-  sku                 = var.search_sku
-  sku_semantic_search = var.search_sku_semantic_search
-  principal_id        = module.mi.principal_id
-  tags                = var.tags
+  source                       = "./modules/search"
+  resource_group_name          = azurerm_resource_group.rg.name
+  location                     = var.location
+  name                         = local.name_search
+  sku                          = var.search_sku
+  sku_semantic_search          = var.search_sku_semantic_search
+  principal_id                 = module.mi.principal_id
+  local_authentication_enabled = var.search_local_authentication_enabled
+  tags                         = var.tags
 }
 
 module "st" {
@@ -103,14 +117,15 @@ module "bot" {
   source                                   = "./modules/bot"
   name                                     = local.name_bot
   resource_group_name                      = azurerm_resource_group.rg.name
-  bot_location                             = var.bot_location
+  location                                 = var.bot_location
   sku                                      = var.bot_sku
-  bot_type                                 = var.bot_type
-  bot_user_assigned_identity_location      = var.location
+  type                                     = var.bot_type
+  user_assigned_identity_location          = var.location
   tags                                     = var.tags
   application_insights_id                  = module.application_insights.appi_id
   application_insights_app_id              = module.application_insights.appi_aap_id
   application_insights_instrumentation_key = module.application_insights.appi_instrumentation_key
+  backend_endpoint                         = var.bot_backend_endpoint
 }
 
 module "virtual_network" {

@@ -3,15 +3,15 @@ data "azuread_client_config" "current" {}
 data "azurerm_client_config" "current" {}
 
 locals {
-  create_bot_app      = var.bot_type == "SingleTenant" || var.bot_type == "MultiTenant"
-  is_bot_multi_tenant = var.bot_type == "MultiTenant"
-  is_bot_user_msi     = var.bot_type == "UserAssignedMSI"
+  create_bot_app      = var.type == "SingleTenant" || var.type == "MultiTenant"
+  is_bot_multi_tenant = var.type == "MultiTenant"
+  is_bot_user_msi     = var.type == "UserAssignedMSI"
 }
 
 resource "azurerm_user_assigned_identity" "bot_user_assigned_identity" {
   count               = !local.create_bot_app ? 1 : 0
   resource_group_name = var.resource_group_name
-  location            = var.bot_user_assigned_identity_location
+  location            = var.user_assigned_identity_location
   name                = "id-${var.name}"
   tags                = var.tags
 
@@ -57,16 +57,16 @@ resource "azurerm_application_insights_api_key" "bot_azurerm_application_insight
 resource "azurerm_bot_service_azure_bot" "bot" {
   name                                  = var.name
   resource_group_name                   = var.resource_group_name
-  location                              = var.bot_location
+  location                              = var.location
   microsoft_app_id                      = local.create_bot_app ? azuread_application.bot_app.0.client_id : azurerm_user_assigned_identity.bot_user_assigned_identity.0.client_id
-  microsoft_app_type                    = var.bot_type
+  microsoft_app_type                    = var.type
   microsoft_app_tenant_id               = local.is_bot_multi_tenant ? null : data.azurerm_client_config.current.tenant_id
   microsoft_app_msi_id                  = local.is_bot_user_msi ? azurerm_user_assigned_identity.bot_user_assigned_identity.0.id : null
   sku                                   = var.sku
   developer_app_insights_key            = var.application_insights_instrumentation_key
   developer_app_insights_api_key        = azurerm_application_insights_api_key.bot_azurerm_application_insights_api_key.api_key
   developer_app_insights_application_id = var.application_insights_app_id
-  endpoint                              = "https://example.com"
+  endpoint                              = var.backend_endpoint
   tags                                  = var.tags
 }
 

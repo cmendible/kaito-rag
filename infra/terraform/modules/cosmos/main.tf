@@ -31,7 +31,7 @@ resource "azurerm_cosmosdb_sql_container" "container_chat_history" {
   resource_group_name   = var.resource_group_name
   account_name          = azurerm_cosmosdb_account.db.name
   database_name         = azurerm_cosmosdb_sql_database.database.name
-  partition_key_path    = "/definition/userId"
+  partition_key_path    = "/userId"
   partition_key_version = 1
   throughput            = var.throughput
 
@@ -49,9 +49,5 @@ resource "azurerm_cosmosdb_sql_container" "container_chat_history" {
     excluded_path {
       path = "/excluded/?"
     }
-  }
-
-  unique_key {
-    paths = ["/definition/idlong", "/definition/idshort"]
   }
 }

@@ -56,10 +56,10 @@ variable "sku_semantic_search" {
   }
 }
 
-# # variable "index_name_document_grounding" {
-# #   description = "(Optional) Specifies the name of the index for document grounding. Defaults to `document-grounding`."
-# #   type        = string
-# #   nullable    = false
-# #   default     = "document-grounding"
-# # }
+variable "local_authentication_enabled" {
+  description = "(Optional) Specifies whether or not local authentication should be enabled for this Azure AI Search Service. Defaults to `false`."
+  type        = bool
+  nullable    = false
+  default     = false
+}
 

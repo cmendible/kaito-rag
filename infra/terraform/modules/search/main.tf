@@ -4,7 +4,7 @@ resource "azurerm_search_service" "search" {
   name                         = var.name
   sku                          = var.sku
   semantic_search_sku          = var.sku_semantic_search
-  local_authentication_enabled = false
+  local_authentication_enabled = var.local_authentication_enabled
   tags                         = var.tags
 }
 

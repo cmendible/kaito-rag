@@ -38,6 +38,39 @@ variable "resource_group_name" {
   default     = "rg-kaito-rag"
 }
 
+/* KEY VAULT */
+
+variable "key_vault_name" {
+  description = "(Required) Specifies the name of the Key Vault."
+  type        = string
+  nullable    = false
+  default     = "kv-kaito-rag"
+}
+
+variable "key_vault_soft_delete_retention_days" {
+  description = "(Optional) The number of days that items should be retained for once soft-deleted. This value can be between 7 and 90 (the default) days. Default is 7 days."
+  type        = number
+  nullable    = false
+  default     = 7
+
+  validation {
+    condition     = var.key_vault_soft_delete_retention_days >= 7 && var.key_vault_soft_delete_retention_days <= 90
+    error_message = "The number of days that items should be retained for once soft-deleted should be between 7 and 90 days."
+  }
+}
+
+variable "key_vault_sku" {
+  description = "(Required) The SKU name of the Key Vault. Possible values are `Standard` and `Premium`. Default is `Standard`."
+  type        = string
+  nullable    = true
+  default     = "Standard"
+
+  validation {
+    condition     = var.key_vault_sku == "Standard" || var.key_vault_sku == "Premium"
+    error_message = "The SKU name of the Key Vault must be either `Standard` or `Premium`."
+  }
+}
+
 /* SSH KEY */
 
 variable "ssh_key_name" {
@@ -176,6 +209,13 @@ variable "search_sku_semantic_search" {
   }
 }
 
+variable "search_local_authentication_enabled" {
+  description = "(Optional) Specifies whether or not local authentication should be enabled for this Azure AI Search Service. Defaults to `false`."
+  type        = bool
+  nullable    = false
+  default     = false
+}
+
 /* BOT */
 
 variable "bot_name" {
@@ -219,6 +259,12 @@ variable "bot_type" {
     condition     = contains(["SingleTenant", "MultiTenant", "UserAssignedMSI"], var.bot_type)
     error_message = "The Azure Bot type is incorrect. Possible values are `SingleTenant`, `MultiTenant` or `functions`."
   }
+}
+
+variable "bot_backend_endpoint" {
+  description = "(Required) Specifies the backend endpoint of the Azure Bot. This value is also known as the messaging endpoint."
+  type        = string
+  nullable    = false
 }
 
 /* VIRTUAL NETWORK (VNet) */
