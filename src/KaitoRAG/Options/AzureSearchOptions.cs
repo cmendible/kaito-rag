@@ -14,11 +14,14 @@ public class AzureSearchOptions
     public required Uri Endpoint { get; init; }
 
     /// <summary>
-    /// Gets the key credential used to authenticate to an Azure AI Search resource. If <see langword="null"/>,
+    /// Gets the key credential used to authenticate to an Azure AI Search resource.
+    /// </summary>
+    /// <remarks>
+    /// If <see langword="null"/>,
     /// credentials to authenticate against the Azure AI Search resource, then a default `Azure.Core.TokenCredential`
     /// authentication flow for applications will be used instead.
-    /// </summary>
-    public required string Key { get; init; }
+    /// </remarks>
+    public string Key { get; init; } = string.Empty;
 
     public double ResultThreshold { get; init; } = 3.0;
 }

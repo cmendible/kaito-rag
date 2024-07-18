@@ -86,6 +86,7 @@ var isStaging = builder.Environment.IsStaging(); // Usually, staging environment
 
 builder.Services.AddOptionsWithValidateOnStart<AzureOpenAIOptions>().Bind(builder.Configuration.GetSection(nameof(AzureOpenAIOptions))).ValidateDataAnnotations();
 builder.Services.AddOptionsWithValidateOnStart<AzureSearchOptions>().Bind(builder.Configuration.GetSection(nameof(AzureSearchOptions))).ValidateDataAnnotations();
+builder.Services.AddOptionsWithValidateOnStart<CosmosChatHistoryServiceOptions>().Bind(builder.Configuration.GetSection(nameof(CosmosChatHistoryServiceOptions))).ValidateDataAnnotations();
 builder.Services.AddOptionsWithValidateOnStart<DirectLineOptions>().Bind(builder.Configuration.GetSection(nameof(DirectLineOptions))).ValidateDataAnnotations();
 builder.Services.AddOptionsWithValidateOnStart<DocumentContentExtractorOptions>().Bind(builder.Configuration.GetSection(nameof(DocumentContentExtractorOptions))).ValidateDataAnnotations();
 builder.Services.AddOptionsWithValidateOnStart<DocumentServiceOptions>().Bind(builder.Configuration.GetSection(nameof(DocumentServiceOptions))).ValidateDataAnnotations();
@@ -121,6 +122,7 @@ builder.Services.AddApplicationInsightsTelemetry(builder.Configuration)
                 .AddSingleton<GlobalDocumentsServiceConfiguration>()
                 .AddSingleton<RecursiveCharacterTextSplitter>()
                 .AddSingleton<KaitoService>()
+                .AddSingleton<CosmosChatHistoryService>()
                 .AddHealthChecks()
                 ;
 

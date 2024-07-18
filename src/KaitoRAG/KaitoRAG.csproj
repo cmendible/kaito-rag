@@ -10,23 +10,21 @@
     <ItemGroup>
         <PackageReference Include="Azure.AI.OpenAI" Version="1.0.0-beta.17" />
         <PackageReference Include="Azure.Identity" Version="1.12.0" />
-        <PackageReference Include="Azure.Search.Documents" Version="11.5.1" />
-        <PackageReference Include="Azure.Storage.Blobs" Version="12.20.0" />
+        <PackageReference Include="Azure.Search.Documents" Version="11.6.0" />
+        <PackageReference Include="Azure.Storage.Blobs" Version="12.21.0" />
         <PackageReference Include="CommunityToolkit.Diagnostics" Version="8.2.2" />
-        <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.7" />
-        <PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="7.2.0" />
+        <PackageReference Include="Microsoft.Azure.AppConfiguration.AspNetCore" Version="7.3.0" />
+        <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.41.0" />
         <PackageReference Include="Microsoft.Bot.Builder.Dialogs" Version="4.22.7" />
         <PackageReference Include="Microsoft.Bot.Builder.Integration.ApplicationInsights.Core" Version="4.22.7" />
         <PackageReference Include="Microsoft.Bot.Builder.Integration.AspNet.Core" Version="4.22.7" />
-        <PackageReference Include="Microsoft.ML.Tokenizers" Version="0.21.1" />
         <PackageReference Include="Microsoft.SemanticKernel" Version="1.16.0" />
         <PackageReference Include="Microsoft.SemanticKernel.Plugins.Document" Version="1.16.0-alpha" />
         <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
-        <PackageReference Include="PdfPig" Version="0.1.9-alpha-20240702-65c64" />
+        <PackageReference Include="PdfPig" Version="0.1.8" />
         <PackageReference Include="SharpToken" Version="2.0.3" />
         <PackageReference Include="System.Linq.Async" Version="6.0.1" />
-        <!--<PackageReference Include="Tabula" Version="0.1.4-alpha001" />-->
     </ItemGroup>
 
     <!-- Configure properties for StyleCop -->

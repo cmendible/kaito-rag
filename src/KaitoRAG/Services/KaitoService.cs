@@ -47,6 +47,8 @@ public class KaitoService
             },
         };
 
+        logger.LogInformation($"Kaito request:\n\n{JsonSerializer.Serialize(request, JsonSerializerOptions)}\n\n");
+
         using var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post, options.InferenceEndpoint);
         httpRequestMessage.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue(@"application/json"));
         httpRequestMessage.Content = JsonContent.Create(request, new MediaTypeWithQualityHeaderValue(@"application/json"), JsonSerializerOptions);
