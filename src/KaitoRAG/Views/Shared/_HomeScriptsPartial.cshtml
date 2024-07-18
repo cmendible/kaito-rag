@@ -14,13 +14,25 @@
         });
         const { token } = await res.json();
 
+        var md = new marked.Marked().use(markedFootnote());
+
         window.WebChat.renderWebChat(
             {
-                directLine: window.WebChat.createDirectLine({ token }),
-                styleOptions: 
-                { 
-                    sendAttachmentOn: 'attach' 
+                directLine: window.WebChat.createDirectLine({
+                    token: token,
+                    domain: '@Html.Raw(Model.BotModel.DirectlineEndpoint)',
+                }),
+                styleOptions: {
+                    botAvatarBackgroundColor: "transparent",
+                    userAvatarBackgroundColor: "transparent",
+                    bubbleBorderRadius: "10px 10px 10px 0px",
+                    bubbleFromUserBorderRadius: "10px 10px 0px 10px",
+                    bubbleBackground: "#F3F3F3",
+                    bubbleFromUserBackground: "#9FD6EA",
+                    sendAttachmentOn: 'attach',
+                    sendBoxTextWrap: true,
                 },
+                renderMarkdown: text => md.parse(text),
             },
             document.getElementById('webchat')
         );

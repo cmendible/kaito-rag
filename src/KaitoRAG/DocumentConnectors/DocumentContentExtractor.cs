@@ -50,7 +50,7 @@ public sealed class DocumentContentExtractor
         return DocumentConnectors.Keys;
     }
 
-    public IEnumerable<List<string>> GetDocumentContent(Stream stream, string fileExtension)
+    public List<string> GetDocumentContent(Stream stream, string fileExtension)
     {
         var connector = GetDocumentConnector(fileExtension);
 
@@ -58,54 +58,13 @@ public sealed class DocumentContentExtractor
 
         var splits = recursiveCharacterTextSplitter.Split(content, content => DefaultGptEncoding.Encode(content).Count);
 
-        // Azure OpenAI currently supports input arrays up to 16 for `text-embedding-ada-002` (Version 2).
-        // Both require the max input token limit per API request to remain under 8191 for this model.
-        var chunks = ChunkByAggregate(splits, seed: 0, aggregator: (tokenCount, paragraph) => tokenCount + DefaultGptEncoding.Encode(paragraph).Count, predicate: (tokenCount, index) => tokenCount < 8191 && index < 16);
+        ////// Azure OpenAI currently supports input arrays up to 16 for `text-embedding-ada-002` (Version 2).
+        ////// Both require the max input token limit per API request to remain under 8191 for this model.
+        //////var chunks = ChunkByAggregate(splits, seed: 0, aggregator: (tokenCount, paragraph) => tokenCount + DefaultGptEncoding.Encode(paragraph).Count, predicate: (tokenCount, index) => tokenCount < 8191 && index < 16);
 
-        return chunks.ToList();
-    }
+        //////return chunks.ToList();
 
-    public Task<IEnumerable<List<string>>> GetDocumentContentAsync(Stream stream, string fileExtension, CancellationToken cancellationToken)
-    {
-        // Using Task.Run instead of Task.FromResult because the operation in GetDocumentContent is potentially slow,
-        // and Task.Run ensures it is executed on a separate thread, maintaining responsiveness.
-        return Task.Run(() => GetDocumentContent(stream, fileExtension), cancellationToken);
-    }
-
-    private static IEnumerable<List<TSource>> ChunkByAggregate<TSource, TAccumulate>(IEnumerable<TSource> source, TAccumulate seed, Func<TAccumulate, TSource, TAccumulate> aggregator, Func<TAccumulate, int, bool> predicate)
-    {
-        using var enumerator = source.GetEnumerator();
-        var aggregate = seed;
-        var index = 0;
-        var chunk = new List<TSource>();
-
-        while (enumerator.MoveNext())
-        {
-            var current = enumerator.Current;
-
-            aggregate = aggregator(aggregate, current);
-
-            if (predicate(aggregate, index++))
-            {
-                chunk.Add(current);
-            }
-            else
-            {
-                if (chunk.Count > 0)
-                {
-                    yield return chunk;
-                }
-
-                chunk = [current];
-                aggregate = aggregator(seed, current);
-                index = 1;
-            }
-        }
-
-        if (chunk.Count > 0)
-        {
-            yield return chunk;
-        }
+        return splits.ToList();
     }
 
     private IDocumentConnector GetDocumentConnector(string fileExtension)

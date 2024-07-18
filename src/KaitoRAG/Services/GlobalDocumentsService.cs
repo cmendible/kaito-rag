@@ -46,7 +46,7 @@ public sealed class GlobalDocumentsService
         logger.LogInformation(@"Start loading global documents.");
 
         var now = DateTime.UtcNow;
-        var accessExpirationDateUtc = now.AddDays(1);
+        var accessExpirationDateUtc = now.AddYears(1);
         var searchRecords = new List<SearchRecord>();
         var kernel = configuration.KernelBuilder.Build();
         var embeddingGenerationService = kernel.GetRequiredService<ITextEmbeddingGenerationService>();

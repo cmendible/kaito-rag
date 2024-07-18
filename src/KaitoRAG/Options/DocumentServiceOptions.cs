@@ -3,7 +3,7 @@
 namespace KaitoRAG.Options;
 
 /// <summary>
-/// Options parameters for the <see cref="AttachmentService"/>.
+/// Options parameters for the <see cref="DocumentService"/>.
 /// </summary>
 public sealed class DocumentServiceOptions
 {

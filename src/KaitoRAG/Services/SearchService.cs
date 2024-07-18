@@ -21,14 +21,9 @@ namespace KaitoRAG.Services;
 
 public abstract class SearchServiceBase
 {
-    ////private static readonly JsonSerializerOptions DocumentInsightsJsonSerializerOptions = new()
-    ////{
-    ////    PropertyNameCaseInsensitive = true,
-    ////};
-
     private readonly ILogger<SearchServiceBase> logger;
 
-    protected SearchServiceBase(string indexName, IKernelBuilder kernelBuilder, ILogger<SearchServiceBase> logger, IOptionsMonitor<AzureSearchOptions> azureAISearchOptions)
+    protected SearchServiceBase(string indexName, IKernelBuilder kernelBuilder, ILogger<SearchServiceBase> logger, IOptionsMonitor<AzureSearchOptions> azureSearchOptions)
     {
         this.logger = logger;
 
@@ -36,9 +31,9 @@ public abstract class SearchServiceBase
 
         KernelBuilder = kernelBuilder;
 
-        BuildSearchClients(azureAISearchOptions.CurrentValue);
+        SetProperties(azureSearchOptions.CurrentValue);
 
-        azureAISearchOptions.OnChange(BuildSearchClients);
+        azureSearchOptions.OnChange(SetProperties);
     }
 
     protected string IndexName { get; private set; }
@@ -48,6 +43,8 @@ public abstract class SearchServiceBase
     protected SearchClient SearchClient { get; private set; }
 
     protected SearchIndexClient SearchIndexClient { get; private set; }
+
+    protected double ResultThreshold { get; private set; }
 
     public async Task DeleteAllMemoryRecordsAsync(CancellationToken cancellationToken)
     {
@@ -243,7 +240,6 @@ public abstract class SearchServiceBase
                 QueryAnswer = new(QueryAnswerType.Extractive)
                 {
                     Count = 3,
-                    Threshold = 0,
                 },
             },
             VectorSearch = new()
@@ -252,7 +248,8 @@ public abstract class SearchServiceBase
                 {
                     new VectorizedQuery(await embeddingGenerationService.GenerateEmbeddingAsync(query, kernel, cancellationToken))
                     {
-                        KNearestNeighborsCount = 5,
+                        KNearestNeighborsCount = 3,
+                        Exhaustive = true,
                         Fields =
                         {
                             SearchRecord.EmbeddingField,
@@ -260,9 +257,17 @@ public abstract class SearchServiceBase
                     },
                 },
             },
+            Size = 3,
+            Select =
+            {
+                SearchRecord.IdField,
+                SearchRecord.ContentField,
+                SearchRecord.TitleField,
+                SearchRecord.UrlField,
+            },
         }, cancellationToken);
 
-        return await results.GetResultsAsync().Select(item => item.Document).ToListAsync(cancellationToken);
+        return await results.GetResultsAsync().Where(item => item.SemanticSearch.RerankerScore >= ResultThreshold).Select(item => item.Document).ToListAsync(cancellationToken);
     }
 
     /// <summary>
@@ -321,13 +326,15 @@ public abstract class SearchServiceBase
     }
 
     [MemberNotNull(nameof(SearchClient), nameof(SearchIndexClient))]
-    private void BuildSearchClients(AzureSearchOptions azureSearchOptions)
+    private void SetProperties(AzureSearchOptions azureSearchOptions)
     {
         SearchIndexClient = string.IsNullOrWhiteSpace(azureSearchOptions.Key)
                                ? new SearchIndexClient(azureSearchOptions.Endpoint, new DefaultAzureCredential())
                                : new SearchIndexClient(azureSearchOptions.Endpoint, new AzureKeyCredential(azureSearchOptions.Key));
 
         SearchClient = SearchIndexClient.GetSearchClient(IndexName);
+
+        ResultThreshold = azureSearchOptions.ResultThreshold;
     }
 
     private async Task WaitForRecordsToBeAvailableAsync(int expectedCount, CancellationToken cancellationToken)

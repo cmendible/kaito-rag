@@ -70,3 +70,11 @@ html {
     height: 100%;
     width: 100%;
 }
+
+.webchat__text-content {
+    text-align: left;
+}
+
+section.footnotes {
+    display: none;
+}

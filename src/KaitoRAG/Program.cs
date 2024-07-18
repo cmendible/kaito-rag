@@ -89,6 +89,7 @@ builder.Services.AddOptionsWithValidateOnStart<AzureSearchOptions>().Bind(builde
 builder.Services.AddOptionsWithValidateOnStart<DirectLineOptions>().Bind(builder.Configuration.GetSection(nameof(DirectLineOptions))).ValidateDataAnnotations();
 builder.Services.AddOptionsWithValidateOnStart<DocumentContentExtractorOptions>().Bind(builder.Configuration.GetSection(nameof(DocumentContentExtractorOptions))).ValidateDataAnnotations();
 builder.Services.AddOptionsWithValidateOnStart<DocumentServiceOptions>().Bind(builder.Configuration.GetSection(nameof(DocumentServiceOptions))).ValidateDataAnnotations();
+builder.Services.AddOptionsWithValidateOnStart<KaitoInferenceOptions>().Bind(builder.Configuration.GetSection(nameof(KaitoInferenceOptions))).ValidateDataAnnotations();
 builder.Services.AddOptionsWithValidateOnStart<RecursiveCharacterTextSplitterOptions>().Bind(builder.Configuration.GetSection(nameof(RecursiveCharacterTextSplitterOptions))).ValidateDataAnnotations();
 
 /* Logging Configuration */
@@ -119,6 +120,7 @@ builder.Services.AddApplicationInsightsTelemetry(builder.Configuration)
                 .AddSingleton<GlobalDocumentsService>()
                 .AddSingleton<GlobalDocumentsServiceConfiguration>()
                 .AddSingleton<RecursiveCharacterTextSplitter>()
+                .AddSingleton<KaitoService>()
                 .AddHealthChecks()
                 ;
 
@@ -177,15 +179,6 @@ builder.Services.AddSingleton(serviceProvider =>
 
     return kernelBuilder;
 });
-
-
-
-//builder.Services.AddScoped(serviceProvider =>
-//{
-
-
-//    return kernelBuilder.Build();
-//});
 
 /* Application Middleware Configuration and HTTP request pipeline */
 

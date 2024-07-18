@@ -52,11 +52,11 @@ internal abstract class AttachmentServiceBase
             return;
         }
 
+        await turnContext.SendActivityAsync(MessageFactory.Text(@"Starting processing your document(s)…"), cancellationToken);
+
         var activity = turnContext.Activity;
 
         configuration.ConversationReferenceService.AddConversationReference(activity);
-
-        await turnContext.SendActivityAsync(MessageFactory.Text(@"Starting processing your documents..."), cancellationToken);
 
         _ = Task.Run(async () =>
         {

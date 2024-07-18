@@ -19,4 +19,6 @@ public class AzureSearchOptions
     /// authentication flow for applications will be used instead.
     /// </summary>
     public required string Key { get; init; }
+
+    public double ResultThreshold { get; init; } = 3.0;
 }
