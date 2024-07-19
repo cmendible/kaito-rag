@@ -13,9 +13,12 @@ resource "azurerm_app_configuration" "appcs" {
     type         = var.identity_type
     identity_ids = var.identity_ids
   }
+}
 
-  #   encryption {
-  #     key_vault_key_identifier = var.key_vault_id
-  #     identity_client_id       = var.principal_id
-  #   }
+data "azurerm_client_config" "current" {}
+
+resource "azurerm_role_assignment" "appconf_dataowner" {
+  scope                = azurerm_app_configuration.appcs.id
+  role_definition_name = "App Configuration Data Owner"
+  principal_id         = data.azurerm_client_config.current.object_id
 }
