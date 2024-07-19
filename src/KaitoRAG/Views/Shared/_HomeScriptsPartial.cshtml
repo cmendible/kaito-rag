@@ -32,7 +32,7 @@
                     sendAttachmentOn: 'attach',
                     sendBoxTextWrap: true,
                 },
-                renderMarkdown: text => md.parse(text),
+                renderMarkdown: md.parse,
             },
             document.getElementById('webchat')
         );

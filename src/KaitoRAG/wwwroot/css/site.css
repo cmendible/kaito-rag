@@ -75,6 +75,6 @@ html {
     text-align: left;
 }
 
-section.footnotes {
+#footnote-label {
     display: none;
 }

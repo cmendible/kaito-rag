@@ -45,7 +45,6 @@ internal class RootDialog(RootDialogConfiguration configuration) : Dialog
     private static string MarkdownReferenceFormatter(string input, IList<SearchRecord> searchRecords)
     {
         var footnotes = new List<string>();
-        ////var refs = ExtractReferenceNumbers(input, searchRecords);
         var refIndexMap = new Dictionary<string, int>();
         var footnoteIndex = 1;
 
@@ -54,12 +53,13 @@ internal class RootDialog(RootDialogConfiguration configuration) : Dialog
             var val = int.Parse(m.Groups[1].Value);
             var searchRecord = searchRecords[val - 1];
             var url = searchRecord.Url;
+            var title = searchRecord.Title;
 
             if (!refIndexMap.TryGetValue(url, out var index))
             {
                 index = footnoteIndex++;
                 refIndexMap[url] = index;
-                footnotes.Add($"[^{index}]: {url}");
+                footnotes.Add($"[^{index}]: [{title}]({url})");
             }
 
             return $"[^{index}]";
