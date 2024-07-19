@@ -28,18 +28,18 @@ public class CosmosChatHistoryService
         await container.UpsertItemAsync(record, cancellationToken: cancellationToken);
     }
 
-    public IEnumerable<ChatHistoryRecord> Retrieve(string userId)
+    public IList<ChatHistoryRecord> Retrieve(string userId)
     {
         IEnumerable<ChatHistoryRecord> chatHistory = [.. container.GetItemLinqQueryable<ChatHistoryRecord>(true)
                                                            .Where(i => i.UserId == userId)
                                                            .OrderByDescending(i => i.DateTimeUtc)
                                                            .Take(options.MaxRecords * 2)]; // `MaxRecords` is duplicated to ensure that the `Take` method will always get the message from the User and the Assistant.
 
-        var a = chatHistory.ToList();
+        var result = chatHistory.ToList();
 
-        a.Reverse();
+        result.Reverse();
 
-        return a;
+        return result;
     }
 
     private void BuildCosmosConnection(CosmosChatHistoryServiceOptions options)
