@@ -20,10 +20,10 @@ public class KaitoInferenceOptions
     [RegularExpression(@"^https?:\/\/.*\/chat$", ErrorMessage = "The Kaito inference endpoint must end with `/chat`.")]
     public Uri InferenceEndpoint { get; init; }
 
-    [Range(0.1, 1.0)]
+    [Range(0.01, 1.0)]
     public double Temperature { get; init; } = 0.1;
 
-    [Range(0.1, 1.0)]
+    [Range(0.01, 1.0)]
     public double TopP { get; init; } = 1.0;
 
     [Range(1, 4096)]

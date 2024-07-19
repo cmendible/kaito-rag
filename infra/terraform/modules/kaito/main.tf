@@ -93,49 +93,32 @@ resource "kubectl_manifest" "kaito_workspace_mistral_7b_instruct" {
   ]
 }
 
-# # resource "kubectl_manifest" "ingress_kaito_workspace_mistral_7b_instruct" {
-# #   yaml_body = <<-EOF
-# #     apiVersion: networking.k8s.io/v1
-# #     kind: Ingress
-# #     metadata:
-# #       name: kaito-mistral-7b-instruct
-# #       annotations:
-# #         cert-manager.io/cluster-issuer: letsencrypt-nginx
-# #         cert-manager.io/acme-challenge-type: http01 
-# #         nginx.ingress.kubernetes.io/affinity: "cookie"
-# #         nginx.ingress.kubernetes.io/proxy-connect-timeout: "600"
-# #         nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
-# #         nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
-# #         nginx.ingress.kubernetes.io/upstream-keepalive-timeout: "600"
-# #         nginx.ingress.kubernetes.io/keep-alive: "600"
-# #         nginx.ingress.kubernetes.io/proxy-buffering: "off"
-# #         nginx.ingress.kubernetes.io/enable-cors: "true"
-# #         nginx.ingress.kubernetes.io/cors-allow-origin: "*"
-# #         nginx.ingress.kubernetes.io/cors-allow-credentials: "false"
-# #     spec:
-# #       ingressClassName: nginx
-# #       tls:
-# #       - hosts:
-# #         - kaito-mistral-7b-instruct.${var.dns_zone_name}
-# #         secretName: kaito-mistral-7b-instruct-tls
-# #       rules:
-# #       - host: kaito-mistral-7b-instruct.${var.dns_zone_name}
-# #         http:
-# #           paths:
-# #           - path: /
-# #             pathType: Prefix
-# #             backend:
-# #               service:
-# #                 name: workspace-mistral-7b-instruct
-# #                 port:
-# #                   number: 80
-# #     EOF
+resource "kubectl_manifest" "ingress_kaito_workspace_mistral_7b_instruct" {
+  yaml_body = <<-EOF
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+      name: kaito-mistral-7b-instruct
+      namespace: ${var.kaito_aks_namespace}
+    spec:
+      ingressClassName: webapprouting.kubernetes.azure.com
+      rules:
+      - host: ${var.dns_zone_name}
+        http:
+          paths:
+          - backend:
+              service:
+                name: kaito-mistral-7b-instruct
+                port:
+                  number: 80
+            path: /kaito
+            pathType: Prefix
+    EOF
 
-# #   depends_on = [
-# #     kubectl_manifest.kaito_workspace_mistral_7b_instruct
-# #   ]
-# # }
-
+  depends_on = [
+    kubectl_manifest.kaito_workspace_mistral_7b_instruct
+  ]
+}
 
 resource "azurerm_federated_identity_credential" "workload_federated_identity_credential" {
   name                = "id-federated-kaito-workload-${var.kaito_aks_namespace}"

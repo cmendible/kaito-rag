@@ -90,6 +90,9 @@ public class KaitoService
         [JsonPropertyName(@"max_length")]
         public int MaxLength { get; init; } = 4096;
 
+        [JsonPropertyName(@"min_length")]
+        public int MinLength { get; init; } = 0;
+
         [JsonPropertyName(@"temperature")]
         public double Temperature { get; init; } = 1.0;
 
