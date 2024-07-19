@@ -2,6 +2,10 @@ data "azurerm_client_config" "current" {}
 
 data "azurerm_subscription" "current" {}
 
+data "azuread_user" "current_user" {
+  object_id = data.azurerm_client_config.current.object_id
+}
+
 resource "random_id" "random" {
   byte_length = 8
 }
@@ -14,6 +18,7 @@ locals {
   name_vnet                      = "${var.vnet_name}${local.name_suffix}"
   name_nat_gateway               = "${var.nat_gateway_name}${local.name_suffix}"
   name_container_registry        = "${var.acr_name}${local.suffix}"
+  name_cosmos                    = "${var.cosmos_name}${local.name_suffix}"
   name_aks                       = "${var.aks_name}${local.name_suffix}"
   name_appinsights               = "${var.appinsights_name}${local.name_suffix}"
   name_openai                    = "${var.openai_name}${local.name_suffix}"
@@ -22,6 +27,8 @@ locals {
   name_storage_account           = "${var.storage_account_name}${local.suffix}"
   name_bot                       = "${var.bot_name}${local.name_suffix}"
   name_ssk_key                   = "${var.ssh_key_name}${local.name_suffix}"
+  name_kv                        = "${var.key_vault_name}${local.name_suffix}"
+  name_appcs                     = "${var.appcs_name}${local.name_suffix}"
   network_plugin_mode            = var.aks_network_plugin_mode == null ? "" : lower(var.aks_network_plugin_mode)
   is_network_plugin_mode_overlay = local.network_plugin_mode == "overlay"
   is_network_plugin_azure        = lower(var.aks_network_plugin) == "azure"
@@ -45,7 +52,7 @@ module "kv" {
   source                     = "./modules/kv"
   location                   = azurerm_resource_group.rg.location
   resource_group_name        = azurerm_resource_group.rg.name
-  name                       = var.key_vault_name
+  name                       = local.name_kv
   tenant_id                  = data.azurerm_client_config.current.tenant_id
   principal_id               = module.mi.principal_id
   soft_delete_retention_days = var.key_vault_soft_delete_retention_days
@@ -53,6 +60,21 @@ module "kv" {
   tags                       = var.tags
 }
 
+module "appcs" {
+  source                       = "./modules/appcs"
+  resource_group_name          = azurerm_resource_group.rg.name
+  location                     = var.location
+  name                         = local.name_appcs
+  sku                          = var.appcs_sku
+  local_authentication_enabled = var.appcs_local_authentication_enabled
+  public_network_access        = var.appcs_public_network_access
+  soft_delete_retention_days   = var.appcs_soft_delete_retention_days
+  tags                         = var.tags
+  identity_type                = var.appcs_identity_type
+  identity_ids                 = [module.mi.mi_id]
+  key_vault_id                 = module.kv.id
+  principal_id                 = module.mi.principal_id
+}
 
 module "openai" {
   source              = "./modules/aoai"
@@ -89,11 +111,10 @@ module "cosmos" {
   source                      = "./modules/cosmos"
   resource_group_name         = azurerm_resource_group.rg.name
   location                    = var.location
-  name                        = var.cosmos_name
+  name                        = local.name_cosmos
   database_name               = var.cosmos_database_name
   container_name_chat_history = var.cosmos_container_name_chat_history
   tags                        = var.tags
-
 }
 
 module "log_analytics_workspace" {

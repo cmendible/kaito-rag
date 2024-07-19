@@ -4,7 +4,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~>3.112.0"
+      version = "~>3.113.0"
     }
     azapi = {
       source  = "azure/azapi"
@@ -35,8 +35,14 @@ provider "azurerm" {
     cognitive_account {
       purge_soft_delete_on_destroy = true
     }
+    app_configuration {
+      purge_soft_delete_on_destroy = true
+    }
     key_vault {
       purge_soft_deleted_secrets_on_destroy = true
+    }
+    log_analytics_workspace {
+      permanently_delete_on_destroy = true
     }
     resource_group {
       # This flag is set to mitigate an open bug in Terraform.

@@ -93,38 +93,12 @@ resource "kubectl_manifest" "kaito_workspace_mistral_7b_instruct" {
   ]
 }
 
-# # resource "kubectl_manifest" "kaito_workspace_falcon_7b_instruct" {
-# #   yaml_body = <<-EOF
-# #     apiVersion: kaito.sh/v1alpha1
-# #     kind: Workspace
-# #     metadata:
-# #       name: workspace-falcon-7b-instruct
-# #       namespace: ${var.kaito_aks_namespace}
-# #       annotations:
-# #         kaito.sh/enablelb: "False"
-# #     resource:
-# #       count: 1
-# #       instanceType: "${var.kaito_instance_type_vm_size}"
-# #       labelSelector:
-# #         matchLabels:
-# #           apps: falcon-7b-instruct
-# #     inference:
-# #       preset:
-# #         name: "falcon-7b-instruct"
-# #     EOF
-
-# #   depends_on = [
-# #     azurerm_federated_identity_credential.kaito_federated_identity_credential,
-# #     kubectl_manifest.kaito_service_account
-# #   ]
-# # }
-
-# # resource "kubectl_manifest" "ingress_kaito_workspace_falcon_7b_instruct" {
+# # resource "kubectl_manifest" "ingress_kaito_workspace_mistral_7b_instruct" {
 # #   yaml_body = <<-EOF
 # #     apiVersion: networking.k8s.io/v1
 # #     kind: Ingress
 # #     metadata:
-# #       name: kaito-falcon-7b-instruct
+# #       name: kaito-mistral-7b-instruct
 # #       annotations:
 # #         cert-manager.io/cluster-issuer: letsencrypt-nginx
 # #         cert-manager.io/acme-challenge-type: http01 
@@ -142,23 +116,23 @@ resource "kubectl_manifest" "kaito_workspace_mistral_7b_instruct" {
 # #       ingressClassName: nginx
 # #       tls:
 # #       - hosts:
-# #         - kaito-falcon-7b-instruct.${var.dns_zone_name}
-# #         secretName: kaito-falcon-7b-instruct-tls
+# #         - kaito-mistral-7b-instruct.${var.dns_zone_name}
+# #         secretName: kaito-mistral-7b-instruct-tls
 # #       rules:
-# #       - host: kaito-falcon-7b-instruct.${var.dns_zone_name}
+# #       - host: kaito-mistral-7b-instruct.${var.dns_zone_name}
 # #         http:
 # #           paths:
 # #           - path: /
 # #             pathType: Prefix
 # #             backend:
 # #               service:
-# #                 name: workspace-falcon-7b-instruct
+# #                 name: workspace-mistral-7b-instruct
 # #                 port:
 # #                   number: 80
 # #     EOF
 
 # #   depends_on = [
-# #     kubectl_manifest.kaito_workspace_falcon_7b_instruct
+# #     kubectl_manifest.kaito_workspace_mistral_7b_instruct
 # #   ]
 # # }
 

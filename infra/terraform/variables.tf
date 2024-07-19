@@ -71,6 +71,77 @@ variable "key_vault_sku" {
   }
 }
 
+/* APP CONFIGURATION */
+
+variable "appcs_name" {
+  description = "(Required) Specifies the name of the Azure App Configuration."
+  type        = string
+  nullable    = false
+  default     = "appcs-kaito-rag"
+}
+
+variable "appcs_sku" {
+  description = "(Required) Specifies the SKU of the Azure App Configuration. Possible values are `free` and `standard`. Defaults to `free`."
+  type        = string
+  nullable    = false
+  default     = "free"
+
+  validation {
+    condition     = contains(["free", "standard"], var.appcs_sku)
+    error_message = "The Azure App Configuration SKU is incorrect. Possible values are `free` and `standard`."
+  }
+}
+
+variable "appcs_local_authentication_enabled" {
+  description = "(Optional) Specifies whether or not local authentication should be enabled for this Azure App Configuration resource. Defaults to `false`."
+  type        = bool
+  nullable    = false
+  default     = false
+}
+
+variable "appcs_soft_delete_retention_days" {
+  description = "(Optional) The number of days that items should be retained for once soft-deleted. This field only works for standard sku. This value can be between 1 and 7 days. Defaults to 7. Changing this forces a new resource to be created."
+  type        = number
+  nullable    = false
+  default     = 7
+
+  validation {
+    condition     = var.appcs_soft_delete_retention_days >= 1 && var.appcs_soft_delete_retention_days <= 7
+    error_message = "The soft delete retention days must be between 1 and 7 days and only works for the standard SKU."
+  }
+}
+
+variable "appcs_public_network_access" {
+  description = "(Optional) The Public Network Access setting of the App Configuration. Possible values are `Enabled` and `Disabled`. Defaults to `Disabled`."
+  type        = string
+  nullable    = false
+  default     = "Disabled"
+
+  validation {
+    condition     = contains(["Enabled", "Disabled"], var.appcs_public_network_access)
+    error_message = "The Public Network Access setting of the App Configuration is incorrect. Possible values are `Enabled` and `Disabled`."
+  }
+}
+
+variable "appcs_identity_type" {
+  description = " (Required) Specifies the type of Managed Service Identity that should be configured on this App Configuration. Possible values are `SystemAssigned`, `UserAssigned`, `SystemAssigned, UserAssigned` (to enable both). Defaults to both enalbe."
+  type        = string
+  nullable    = false
+  default     = "SystemAssigned, UserAssigned" # Default both enalbe
+
+  validation {
+    condition     = contains(["SystemAssigned", "UserAssigned", "SystemAssigned, UserAssigned"], var.appcs_identity_type)
+    error_message = "The Managed Service Identity type is incorrect. Possible values are `SystemAssigned`, `UserAssigned`, `SystemAssigned, UserAssigned`."
+  }
+}
+
+variable "appcs_identity_ids" {
+  description = "(Optional) Specifies the list of user assigned identities to be associated with the App Configuration."
+  type        = list(string)
+  nullable    = false
+  default     = []
+}
+
 /* SSH KEY */
 
 variable "ssh_key_name" {
