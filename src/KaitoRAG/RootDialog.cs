@@ -21,70 +21,121 @@ internal class RootDialog(RootDialogConfiguration configuration) : Dialog
         var turnContext = dc.Context;
         var activity = turnContext.Activity;
         var userId = activity.GetUserId();
-        var query = activity.Text;
+        var query = activity.Text?.Trim();
 
-        // End the dialog if the user is not asking anything.
-        if (string.IsNullOrWhiteSpace(query))
+        // Do not start the dialog if the user is not asking anything...
+        if (!string.IsNullOrWhiteSpace(query))
         {
-            return await dc.EndDialogAsync(cancellationToken: cancellationToken);
-        }
+            var searchTasks = new[]
+            {
+                configuration.UserSearchService.SearchRecordsAsync(query, userId, cancellationToken),
+                configuration.GlobalSearchService.SearchRecordsAsync(query, cancellationToken),
+            };
 
-        var searchRecordsCollection = await Task.WhenAll(configuration.UserSearchService.SearchRecordsAsync(query, userId, cancellationToken), configuration.GlobalSearchService.SearchRecordsAsync(query, cancellationToken));
-        var searchRecords = searchRecordsCollection.Where(x => x != null).SelectMany(x => x!).ToList(); ;
+            var searchRecordsCollection = await Task.WhenAll(searchTasks);
+            var searchRecords = searchRecordsCollection.SelectMany(x => x ?? []).ToList();
 
-        if (searchRecords.Count == 0)
-        {
-            await turnContext.SendActivityAsync(MessageFactory.Text(@"I'm sorry, I don't know about that!"), cancellationToken);
-        }
-        else
-        {
-            var systemPrompt = $$"""
-            {{BuildContextPromptSection(searchRecords)}}
-            
-            Use the previous pieces of information to answer the question below with the following instructions:
-              1. Select the most relevant information from the context.
-              2. Generate a draft response concatenating every selected piece of information, ensuring it is precise and concise. 
-                2a. If the piece of information reference one context, use this format: `<Your answer>[$<ID Context>$]`
-                2b. If the piece of information reference multiple contexts, use this format: `<Your answer>[$<ID Context>$],[$<ID other Context>$],[$<ID another Context>$],...`
-              3. Remove duplicate content from the draft response
-              4. Generate your final response after adjusting it to increase accuracy and relevant.
-              5. Now only show your final response! Do not provide any explanations or details
-            
-            
-            QUESTION: {{query}}
-            ANSWER:
-            """;
+            var chatHistoryRecords = configuration.ChatHistoryService.Retrieve(userId);
+
+            var systemPrompt = GenerateSystemPrompt(searchRecords, chatHistoryRecords, query);
 
             var response = await configuration.KaitoService.GetInferenceAsync(systemPrompt, cancellationToken: cancellationToken);
-
             var cleanupResponse = CleanUpString(response);
-            var references = ExtractReferenceNumbers(cleanupResponse);
+            var markdownResponse = MarkdownReferenceFormatter(cleanupResponse, searchRecords);
 
-            await turnContext.SendActivityAsync(MessageFactory.Text(cleanupResponse), cancellationToken);
-
-            var now = DateTime.UtcNow;
-
-            await configuration.ChatHistoryService.InsertAsync(new ChatHistoryRecord()
-            {
-                Content = query,
-                DateTimeUtc = now,
-                Id = Guid.NewGuid(),
-                Role = ChatHistoryRecord.ChatHistoryRecordRole.User,
-                UserId = userId,
-            }, cancellationToken);
-
-            await configuration.ChatHistoryService.InsertAsync(new ChatHistoryRecord()
-            {
-                Content = cleanupResponse,
-                DateTimeUtc = now,
-                Id = Guid.NewGuid(),
-                Role = ChatHistoryRecord.ChatHistoryRecordRole.Assistant,
-                UserId = userId,
-            }, cancellationToken);
-
+            await turnContext.SendActivityAsync(MessageFactory.Text(markdownResponse), cancellationToken);
+            await LogConversationAsync(userId, query, cleanupResponse, cancellationToken);
         }
 
         return await dc.EndDialogAsync(cancellationToken: cancellationToken);
+    }
+
+    private static Dictionary<string, (string Title, HashSet<int> Ids)> ExtractReferenceNumbers(string input, IList<SearchRecord> searchRecords)
+    {
+        var refs = new Dictionary<string, (string Title, HashSet<int> Ids)>();
+
+        var matches = ResponseExtractReferenceNumbersPattern.Matches(input);
+
+        foreach (var groups in matches.Select(match => match.Groups))
+        {
+            var val = int.Parse(groups[1].Value);
+            var url = searchRecords[val - 1].Url;
+            var title = searchRecords[val - 1].Title;
+
+            if (refs.TryGetValue(url, out var value))
+            {
+                value.Ids.Add(val);
+            }
+            else
+            {
+                var h = new HashSet<int>
+                {
+                    val,
+                };
+
+                refs.Add(url, new(title, h));
+            }
+        }
+
+        return refs;
+    }
+
+    private static string MarkdownReferenceFormatter(string input, IList<SearchRecord> searchRecords)
+    {
+        var footnotes = new HashSet<string>();
+
+        var refs = ExtractReferenceNumbers(input, searchRecords);
+
+        var formattedInput = ResponseExtractReferenceNumbersPattern.Replace(input, m =>
+        {
+            var x = m.Groups[1].Value;
+            var y = int.Parse(x);
+
+            var item = refs.Single(item => item.Value.Ids.Contains(y));
+
+            var p = refs.Keys.ToList().IndexOf(item.Key);
+
+            var z = $"[^{p + 1}]";
+
+            ////footnotes.Add($"{z}: [{item.Value.Title}]({item.Key})");
+            footnotes.Add($"{z}: {item.Key}");
+
+            return z;
+        });
+
+        return $"{formattedInput}\n\n{string.Join("\n", footnotes)}";
+    }
+
+    private static string GenerateSystemPrompt(IList<SearchRecord> searchRecords, IList<ChatHistoryRecord> chatHistoryRecords, string query)
+    {
+        return searchRecords.Count > 0
+            ? $$"""
+                {{BuildContextPromptSection(searchRecords)}}
+                Use the previous pieces of information to answer the question below with the following instructions:
+                  1. Select the most relevant information from the context
+                  2. Generate a draft response with every selected piece of information, ensuring they are precise and concise, following these rules:
+                    2a. Information from a context must always use this format: <information>[$<ID of a Context>$]
+                    2b. Information from multiple contexts must always use this format: <information>[$ID of a Context$], [$ID of other Context$], [$ID of another Context$],...
+                  3. Remove duplicate content from the draft response, including any duplicate context references
+                  4. Generate your final response after adjusting it to increase accuracy and relevant
+                  5. Now only show your final response! Do not provide any explanations or details
+        
+                QUESTION: {{query}}
+                ANSWER:
+                """
+            : $$"""
+                {{BuildChatHistoryPromptSection(chatHistoryRecords)}}
+                Use the chat history to answer the question below with the following instructions:
+                    1. Select the most relevant information from the context
+                    2. If the chat history does not contain the answer, do not try to make up one and just return `I'm sorry, I don't know about that!` ending the conversation without any further explanation
+                    3. Generate a draft response ensuring it is precise and concise
+                    4. Remove duplicate content from the draft response
+                    5. Generate your final response after adjusting it to increase accuracy and relevant
+                    6. Now only show your final response! Do not provide any explanations or details
+        
+                QUESTION: {{query}}
+                ANSWER:
+                """;
     }
 
     private static string BuildContextPromptSection(IEnumerable<SearchRecord> searchRecords)
@@ -100,16 +151,18 @@ internal class RootDialog(RootDialogConfiguration configuration) : Dialog
         return sb.AppendLine("<<END CONTEXT>>").ToString();
     }
 
-    private static string? BuildChatHistoryPromptSection(IEnumerable<ChatHistoryRecord> chatHistoryRecords)
+    private static string BuildChatHistoryPromptSection(IEnumerable<ChatHistoryRecord> chatHistoryRecords)
     {
-        if (!chatHistoryRecords.Any())
+        var sb = new StringBuilder("<<BEGIN CHAT HISTORY>>");
+
+        if (chatHistoryRecords.Any())
         {
-            return null;
+            sb.AppendLine("\n\n")
+              .AppendLine(string.Join("\n", chatHistoryRecords.Select(record => $@"{(record.Role == ChatHistoryRecord.ChatHistoryRecordRole.User ? @" - USER" : @" - ASSISTANT")}: {record.Content}")))
+              ;
         }
 
-        var chatHistory = string.Join("\n", chatHistoryRecords.Select(record => $@"{(record.Role == ChatHistoryRecord.ChatHistoryRecordRole.User ? @" - USER" : @" - ASSISTANT")}: {record.Content}"));
-
-        return $"User conversation history:\n\n{chatHistory}\n---\n";
+        return sb.AppendLine("<<END CHAT HISTORY>>").ToString();
     }
 
     private static string CleanUpString(string input)
@@ -117,20 +170,29 @@ internal class RootDialog(RootDialogConfiguration configuration) : Dialog
         return (ResponseCleanRegexPattern.IsMatch(input) ? ResponseCleanRegexPattern.Replace(input, string.Empty) : input).Trim();
     }
 
-    private static HashSet<int> ExtractReferenceNumbers(string input)
+    private async Task LogConversationAsync(string userId, string query, string response, CancellationToken cancellationToken)
     {
-        var referenceNumbers = new HashSet<int>();
+        var now = DateTime.UtcNow;
 
-        var matches = ResponseExtractReferenceNumbersPattern.Matches(input);
-
-        foreach (Match match in matches)
+        var userRecord = new ChatHistoryRecord()
         {
-            if (match.Success)
-            {
-                referenceNumbers.Add(int.Parse(match.Groups[1].Value));
-            }
-        }
+            Content = query,
+            DateTimeUtc = now,
+            Id = Guid.NewGuid(),
+            Role = ChatHistoryRecord.ChatHistoryRecordRole.User,
+            UserId = userId,
+        };
 
-        return referenceNumbers;
+        var assistantRecord = new ChatHistoryRecord()
+        {
+            Content = response,
+            DateTimeUtc = now,
+            Id = Guid.NewGuid(),
+            Role = ChatHistoryRecord.ChatHistoryRecordRole.Assistant,
+            UserId = userId,
+        };
+
+        await configuration.ChatHistoryService.InsertAsync(userRecord, cancellationToken);
+        await configuration.ChatHistoryService.InsertAsync(assistantRecord, cancellationToken);
     }
 }
