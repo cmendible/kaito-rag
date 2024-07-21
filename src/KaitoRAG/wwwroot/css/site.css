@@ -49,12 +49,17 @@ html, body {
     height: calc(100vh - 100px);
 }
 
-#webchat {
-    height: 100%;
-    width: 100%;
+#webchat-container {
+    margin-top: 1rem;
+    height: calc(100vh - 12rem);
     border: solid 1px rgb(222, 226, 230);
     border-radius: 0.5em;
     padding: 0.1rem;
+}
+
+#webchat {
+    height: 100%;
+    width: 100%;
 }
 
 .webchat__text-content {
