@@ -6,6 +6,7 @@ using KaitoRAG.Services;
 
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.Bot.Schema;
 
 namespace KaitoRAG;
 
@@ -35,7 +36,10 @@ internal class RootDialog(RootDialogConfiguration configuration) : Dialog
             var response = await configuration.KaitoService.GetInferenceAsync(BuildSystemPrompt(query, userId, searchRecords), cancellationToken: cancellationToken);
             var markdownResponse = MarkdownReferenceFormatter(response, searchRecords);
 
-            await turnContext.SendActivityAsync(MessageFactory.Text(markdownResponse), cancellationToken);
+            var responseActivity = MessageFactory.Text(markdownResponse);
+            responseActivity.TextFormat = TextFormatTypes.Markdown;
+
+            await turnContext.SendActivityAsync(responseActivity, cancellationToken);
             await LogConversationAsync(userId, query, response, cancellationToken);
         }
 
@@ -44,28 +48,30 @@ internal class RootDialog(RootDialogConfiguration configuration) : Dialog
 
     private static string MarkdownReferenceFormatter(string input, IList<SearchRecord> searchRecords)
     {
-        var footnotes = new List<string>();
-        var refIndexMap = new Dictionary<string, int>();
-        var footnoteIndex = 1;
+        var footnotes = new StringBuilder();
+        var footnoteReferencesIndexMap = new Dictionary<string, int>(); // A dictionary to map each URL to its final footnote index
+        var footnoteIndex = 1; // Starting index for footnotes
 
         var formattedInput = ResponseExtractReferenceNumbersPattern.Replace(input, m =>
         {
-            var val = int.Parse(m.Groups[1].Value);
-            var searchRecord = searchRecords[val - 1];
-            var url = searchRecord.Url;
-            var title = searchRecord.Title;
+            var footnoteReferenceNumber = int.Parse(m.Groups[1].Value);
+            var footnoteSearchRecord = searchRecords[footnoteReferenceNumber - 1];
+            var url = footnoteSearchRecord.Url;
+            var title = footnoteSearchRecord.Title;
 
-            if (!refIndexMap.TryGetValue(url, out var index))
+            // Check if the URL already has an assigned footnote index
+            if (!footnoteReferencesIndexMap.TryGetValue(url, out var index))
             {
-                index = footnoteIndex++;
-                refIndexMap[url] = index;
-                footnotes.Add($"[^{index}]: [{title}]({url})");
+                index = footnoteIndex++;                                    // If not, assign the next available index
+                footnoteReferencesIndexMap[url] = index;                    // Add the URL and its index to the map
+                footnotes.AppendLine($"[{index}]: {url} \"{title}\"");      // Append the formatted footnote to the footnotes collection
             }
 
-            return $"[^{index}]";
-        });
+            // Return the markdown footnote reference (index) to replace the original reference number in the input
+            return $"[{index}]";
+        }).Trim();
 
-        return $"{formattedInput}\n\n{string.Join("\n", footnotes)}";
+        return $"{formattedInput}\n\n{footnotes}";
     }
 
     private static string BuildContextPromptSection(IEnumerable<SearchRecord> searchRecords)

@@ -75,6 +75,21 @@ html {
     text-align: left;
 }
 
-#footnote-label {
-    display: none;
+a.webchat__render-markdown__pure-identifier {
+    vertical-align: super;
+    font-size: 80%;
+    line-height: 0;
 }
+
+    a.webchat__render-markdown__pure-identifier > img {
+        display: none;
+    }
+
+    a.webchat__render-markdown__pure-identifier::before {
+        content: "" !important;
+        margin-left: 0.1rem;
+    }
+
+    a.webchat__render-markdown__pure-identifier::after {
+        content: "" !important;
+    }
