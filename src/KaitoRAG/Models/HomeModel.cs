@@ -6,5 +6,5 @@ public class HomeModel
 
     public Uri TeamsUrl { get; init; }
 
-    public bool AreGlobalDocumentsLoad { get; set; }
+    public bool AreGlobalDocumentsLoaded { get; init; }
 }

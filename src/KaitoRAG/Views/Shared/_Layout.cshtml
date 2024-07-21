@@ -13,24 +13,24 @@
     @await RenderSectionAsync(@"Header", required: false)
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-light bg-light">
-            <span class="navbar-brand mb-0 h1">Kaito-RAG</span>
-        </nav>
-    </header>
-
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+    <div class="d-flex flex-column h-100">
+        <div class="d-flex flex-column flex-grow-1">
+            <header>
+                <nav class="navbar navbar-light bg-light">
+                    <span class="navbar-brand mb-0 h1">Kaito-RAG</span>
+                </nav>
+            </header>
+            <main class="h-100 flex-grow-1">
+                @RenderBody()
+            </main>
+            <footer class="border-top footer text-muted">
+                <script>document.write(new Date().getFullYear())</script> &copy; Copyright - <i class="mdi mdi-microsoft"></i> Microsoft - v.@FileVersionInfo.GetVersionInfo(typeof(KaitoRAG.Controllers.BotController).Assembly.Location).ProductVersion
+            </footer>
+        </div>
     </div>
-
-    <footer class="border-top footer text-muted">
-        <script>document.write(new Date().getFullYear())</script> &copy; Copyright - <i class="mdi mdi-microsoft"></i> Microsoft - v.@FileVersionInfo.GetVersionInfo(typeof(KaitoRAG.Controllers.BotController).Assembly.Location).ProductVersion
-    </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+    @await RenderSectionAsync(@"Scripts", required: false)
 </body>
 </html>

@@ -10,9 +10,9 @@
         type: 'POST',
         data: {
             __RequestVerificationToken: token,
-        },
+        },        
         success: function (result) {
-            $('#globalDocumentsContainer').html(result);
+            $('#partialActions').html(result);
             console.log('success');
             console.log(result);
         },

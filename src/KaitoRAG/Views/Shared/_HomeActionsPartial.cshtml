@@ -3,27 +3,28 @@
 {
     @Html.AntiForgeryToken()
 }
-<div id="actions">
-    <a id="btnTeams" class="btn btn-ms-teams me-4" href="@Model.TeamsUrl" role="button" target="_blank"><span class="mdi mdi-microsoft-teams"></span>&nbsp;&nbsp;Try it on Microsoft Teams</a>
-    
-    @if (Model.AreGlobalDocumentsLoad)
-    {
-        <a id="btnReloadGlobalDocuments" class="btn btn-warning" href="#" role="button" data-url="@Url.Action(@"ReloadGlobalDocuments")" onclick="doGlobalDocumentsAction(this)">Reload Global Documents</a>
-        <a id="btnUnloadGlobalDocuments" class="btn btn-danger" href="#" role="button" data-url="@Url.Action(@"UnloadGlobalDocuments")" onclick="doGlobalDocumentsAction(this)">Unload Global Documents</a>
-    }
-    else
-    {
-        <a id="btnLoadGlobalDocuments" class="btn btn-primary" href="#" role="button" data-url="@Url.Action(@"LoadGlobalDocuments")" onclick="doGlobalDocumentsAction(this)">Load Global Documents</a>
-    }
-    
+<div id="actions" class="d-flex">
+
+    <div class="p-2">
+        <a id="btnTeams" class="btn btn-ms-teams" href="@Model.TeamsUrl" role="button" target="_blank"><span class="mdi mdi-microsoft-teams"></span>&nbsp;&nbsp;Try it on Microsoft Teams</a>
+    </div>
+    <div class="p-2">
+        @if (Model.AreGlobalDocumentsLoaded)
+        {
+            <a id="btnReloadGlobalDocuments" class="ms-auto btn btn-warning" href="#" role="button" data-url="@Url.Action(@"ReloadGlobalDocuments")" onclick="doGlobalDocumentsAction(this)">Reload Global Documents</a>
+            <a id="btnUnloadGlobalDocuments" class="btn btn-danger" href="#" role="button" data-url="@Url.Action(@"UnloadGlobalDocuments")" onclick="doGlobalDocumentsAction(this)">Unload Global Documents</a>
+        }
+        else
+        {
+            <a id="btnLoadGlobalDocuments" class="btn btn-primary" href="#" role="button" data-url="@Url.Action(@"LoadGlobalDocuments")" onclick="doGlobalDocumentsAction(this)">Load Global Documents</a>
+        }
+    </div>    
 </div>
-<div id="loader" class="row d-none">
-    <div class="col-12">
-        <div class="alert alert-info mb-0 p-2" role="alert">
-            <div class="d-flex">
-                <div>Processing global documents…&nbsp;<strong>This may take a while, please be patient! </strong> </div>
-                <div class="spinner-border ms-auto" role="status" aria-hidden="true"></div>
-            </div>
+<div id="loader" class="mt-2 d-none">
+    <div class="alert alert-info mb-0 p-2" role="alert">
+        <div class="d-flex">
+            <div>Processing documents…&nbsp;<strong>This may take a while, please be patient! </strong> </div>
+            <div class="spinner-border ms-auto" role="status" aria-hidden="true"></div>
         </div>
     </div>
 </div>

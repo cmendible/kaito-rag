@@ -42,7 +42,7 @@ public class HomeController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<PartialViewResult> ReloadGlobalDocuments(CancellationToken cancellationToken)
+    public async Task<PartialViewResult> ReloadGlobalDocumentsAsync(CancellationToken cancellationToken)
     {
         await globalDocumentsService.ReloadGlobalDocumentsAsync(cancellationToken);
         var model = await BuildHomeModelAsync(cancellationToken);
@@ -51,7 +51,7 @@ public class HomeController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<PartialViewResult> UnloadGlobalDocuments(CancellationToken cancellationToken)
+    public async Task<PartialViewResult> UnloadGlobalDocumentsAsync(CancellationToken cancellationToken)
     {
         await globalDocumentsService.UnloadGlobalDocumentsAsync(cancellationToken);
         var model = await BuildHomeModelAsync(cancellationToken);
@@ -74,7 +74,7 @@ public class HomeController : Controller
                 DirectLineToken = directLineOptions.DirectLineToken,
             },
             TeamsUrl = new Uri($@"https://teams.microsoft.com/l/chat/0/0?users=28:{configuration[@"MicrosoftAppId"]}"),
-            AreGlobalDocumentsLoad = await globalDocumentsService.HasDocumentsAsync(cancellationToken),
+            AreGlobalDocumentsLoaded = await globalDocumentsService.HasDocumentsAsync(cancellationToken),
         };
     }
 }

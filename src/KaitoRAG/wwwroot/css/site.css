@@ -1,18 +1,9 @@
-html {
-    position: relative;
-    min-height: 100%;
-    font-size: 14px;
+html, body {
+    height: 100vh;
 }
 
-@media (min-width: 768px) {
-    html {
-        font-size: 16px;
-    }
-}
-
-.mdi-microsoft-teams {
-    font-size: 22px;
-    line-height: 0;
+.navbar, .footer {
+    padding-left: 1rem;
 }
 
 .footer {
@@ -20,7 +11,13 @@ html {
     bottom: 0;
     width: 100%;
     white-space: nowrap;
-    line-height: 3.125em;
+    line-height: 50px;
+    background: rgb(248, 249, 250);
+}
+
+.mdi-microsoft-teams {
+    font-size: 22px;
+    line-height: 0;
 }
 
 .btn-ms-teams {
@@ -48,27 +45,16 @@ html {
         border-color: #0a53be;
     }
 
-{
-    color: #fff;
-    background-color: #6264a2;
-    border-color: #6264a2;
-}
-
-.navbar, .footer {
-    padding-left: 1rem;
-}
-
-#webchat-container {
-    margin-top: 1rem;
-    height: calc(100vh - 12rem);
-    border: solid 1px rgb(222, 226, 230);
-    border-radius: 0.5em;
-    padding: 0.1rem;
+.container{
+    height: calc(100vh - 100px);
 }
 
 #webchat {
     height: 100%;
     width: 100%;
+    border: solid 1px rgb(222, 226, 230);
+    border-radius: 0.5em;
+    padding: 0.1rem;
 }
 
 .webchat__text-content {
