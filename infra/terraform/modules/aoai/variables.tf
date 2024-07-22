@@ -5,13 +5,13 @@ variable "resource_group_name" {
 }
 
 variable "location" {
-  description = "(Required) Specifies the location of the Azure Virtual Network."
+  description = "(Required) Specifies the location of the Azure OpenAI."
   type        = string
   nullable    = false
 }
 
 variable "name" {
-  description = "(Required) Specifies the name of the Azure Virtual Network."
+  description = "(Required) Specifies the name of the Azure OpenAI."
   type        = string
   nullable    = false
 }

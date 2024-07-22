@@ -8,11 +8,6 @@ output "id" {
   description = "Specifies the resource id of the AKS cluster."
 }
 
-output "tags" {
-  value       = azurerm_kubernetes_cluster.aks.tags
-  description = "Specifies the tags of the AKS cluster."
-}
-
 output "aks_identity_principal_id" {
   value       = azurerm_user_assigned_identity.aks_identity.principal_id
   description = "Specifies the principal id of the managed identity of the AKS cluster."
@@ -104,18 +99,3 @@ output "aks_workload_managed_identity_client_id" {
 output "aks_workload_managed_identity_id" {
   value = azurerm_user_assigned_identity.aks_workload_identity.id
 }
-
-# output "user_node_pool_name" {
-#   description = "Specifies the name of the node pool"
-#   value       = azurerm_kubernetes_cluster_node_pool.user_node_pool.name
-# }
-
-# output "user_node_pool_id" {
-#   description = "Specifies the resource id of the node pool"
-#   value       = azurerm_kubernetes_cluster_node_pool.user_node_pool.id
-# }
-
-# output "user_node_pool_tags" {
-#   description = "Specifies the tags of the node pool"
-#   value       = azurerm_kubernetes_cluster_node_pool.user_node_pool.tags
-# }

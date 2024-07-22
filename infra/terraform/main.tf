@@ -72,7 +72,6 @@ module "appcs" {
   tags                         = var.tags
   identity_type                = var.appcs_identity_type
   identity_ids                 = [module.mi.mi_id]
-  key_vault_id                 = module.kv.id
   principal_id                 = module.mi.principal_id
 }
 

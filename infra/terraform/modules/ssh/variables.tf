@@ -11,7 +11,7 @@ variable "resource_group_id" {
 }
 
 variable "location" {
-  description = "(Required) Specifies the location where the AKS cluster will be deployed."
+  description = "(Required) Specifies the location where the SSH Keys will be deployed."
   type        = string
   nullable    = false
 }

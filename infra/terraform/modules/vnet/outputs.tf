@@ -3,11 +3,6 @@ output "id" {
   value       = azurerm_virtual_network.vnet.id
 }
 
-output "name" {
-  description = "Specifies the name of the Azure Virtual Network."
-  value       = azurerm_virtual_network.vnet.name
-}
-
 output "subnet_ids" {
   description = "Contains a list of the resource IDs of the subnets"
   value       = { for subnet in azurerm_subnet.subnet : subnet.name => subnet.id }

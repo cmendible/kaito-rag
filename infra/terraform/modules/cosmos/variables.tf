@@ -46,7 +46,7 @@ variable "throughput" {
 }
 
 variable "tags" {
-  description = "(Optional) Specifies the tags of the Cosmos DB resource."
+  description = "(Optional) Specifies the tags of this Cosmos DB resource."
   default     = {}
   nullable    = false
 }

@@ -5,19 +5,19 @@ variable "resource_group_name" {
 }
 
 variable "location" {
-  description = "(Required) Specifies the location of the Azure Virtual Network."
+  description = "(Required) Specifies the location of the Azure Application Insights."
   type        = string
   nullable    = false
 }
 
 variable "name" {
-  description = "(Required) Specifies the name of the Azure Virtual Network."
+  description = "(Required) Specifies the name of the Azure Application Insights."
   type        = string
   nullable    = false
 }
 
 variable "log_analytics_workspace_id" {
-  description = "(Required) Specifies the resource id of the Azure Log Analytics Workspace."
+  description = "(Required) Specifies the resource ID of the Azure Log Analytics Workspace."
   type        = string
   nullable    = false
 }

@@ -40,12 +40,6 @@ variable "sku" {
   }
 }
 
-variable "key_vault_id" {
-  description = "(Required) Specifies the resource id of the Azure Key Vault where to store secrets created by the Azure Bot."
-  type        = string
-  nullable    = false
-}
-
 variable "local_authentication_enabled" {
   description = "(Optional) Specifies whether or not local authentication should be enabled for this Azure App Configuration resource. Defaults to `false`."
   type        = bool

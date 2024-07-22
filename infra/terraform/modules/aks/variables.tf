@@ -1,5 +1,5 @@
 variable "location" {
-  description = "(Required) Specifies the location where the AKS cluster will be deployed."
+  description = "(Required) Specifies the location where this Azure Kubernetes Service (AKS) cluster will be deployed."
   type        = string
   nullable    = false
 }
@@ -12,7 +12,7 @@ variable "name" {
 }
 
 variable "resource_group_id" {
-  description = "(Required) Specifies the resource id of the resource group."
+  description = "(Required) Specifies the resource ID of the resource group."
   type        = string
   nullable    = false
 }
@@ -24,14 +24,14 @@ variable "resource_group_name" {
 }
 
 variable "sku" {
-  description = "(Optional) The SKU Tier that should be used for this Kubernetes Cluster. Possible values are `Free` and `Paid` (which includes the Uptime SLA). Defaults to `Free`."
+  description = "(Optional) The SKU Tier that should be used for this Azure Kubernetes Service (AKS) Cluster. Possible values are `Free` and `Paid` (which includes the Uptime SLA). Defaults to `Free`."
   type        = string
   nullable    = false
   default     = "Free"
 
   validation {
     condition     = contains(["Free", "Paid"], var.sku)
-    error_message = "The sku tier is invalid."
+    error_message = "The SKU tier is invalid. Possible values are `Free` and `Paid`."
   }
 }
 
@@ -51,14 +51,14 @@ variable "admin_username" {
 }
 
 variable "automatic_channel_upgrade" {
-  description = "(Optional) The upgrade channel for this Kubernetes Cluster. Possible values are `patch`, `rapid`, and `stable`. Defaults to `stable`."
+  description = "(Optional) The upgrade channel for this Azure Kubernetes Service (AKS) Cluster. Possible values are `patch`, `rapid`, and `stable`. Defaults to `stable`."
   type        = string
   nullable    = false
   default     = "stable"
 
   validation {
     condition     = contains(["patch", "rapid", "stable"], var.automatic_channel_upgrade)
-    error_message = "The upgrade mode is invalid."
+    error_message = "The upgrade mode is invalid. Possible values are `patch`, `rapid`, and `stable`."
   }
 }
 
@@ -141,7 +141,7 @@ variable "admin_group_object_ids" {
 }
 
 variable "azure_rbac_enabled" {
-  description = "(Optional) Is Role Based Access Control based on Azure AD enabled? Defaults to `true`."
+  description = "(Optional) Is Role Based Access Control based on Microsoft Entra (former Azure Active Directory or Azure AD) enabled? Defaults to `true`."
   type        = bool
   nullable    = false
   default     = true
@@ -155,7 +155,7 @@ variable "enable_aks_rbac_cluster_admin_assignment" {
 }
 
 variable "tenant_id" {
-  description = "(Required) The Tenant ID of the System Assigned Identity which is used by master components."
+  description = "(Required) The Tenant ID of the System Assigned Identity which is used by main components."
   type        = string
   nullable    = false
 }
@@ -212,14 +212,14 @@ variable "network_plugin_mode" {
 }
 
 variable "network_policy" {
-  description = " (Optional) Sets up network policy to be used with Azure CNI. Network policy allows us to control the traffic flow between pods. Currently supported values are `calico`, `azure` and `cilium`. Defaults to `azure`."
+  description = " (Optional) Sets up network policy to be used with Azure CNI (Container Network Interface). Network policy allows us to control the traffic flow between pods. Currently supported values are `calico`, `azure` and `cilium`. Defaults to `azure`."
   type        = string
   nullable    = false
   default     = "azure"
 
   validation {
     condition     = contains(["azure", "calico", "cilium"], var.network_policy)
-    error_message = "The upgrade policy is invalid."
+    error_message = "The network policy is invalid. Possible values are `azure`, `calico` and `cilium`."
   }
 }
 
@@ -231,7 +231,7 @@ variable "outbound_type" {
 
   validation {
     condition     = contains(["loadBalancer", "userDefinedRouting", "userAssignedNATGateway", "managedNATGateway"], var.outbound_type)
-    error_message = "The outbound type is invalid."
+    error_message = "The outbound type is invalid. Possible values are `loadBalancer`, `userDefinedRouting`, `userAssignedNATGateway` or `managedNATGateway`."
   }
 }
 
@@ -389,7 +389,7 @@ variable "system_node_pool_name" {
 }
 
 variable "system_node_pool_node_count" {
-  description = "(Optional) The initial number of nodes which should exist within this Node Pool. Valid values are between 0 and 1000 and must be a value in the range `min_count - max_count`. Defaults to 3."
+  description = "(Optional) The initial number of nodes which should exist within this Node Pool. Valid values are between 0 and 1000 and must be a value in the range `min_count - max_count`. Defaults to 1."
   type        = number
   nullable    = false
   default     = 1
@@ -471,20 +471,21 @@ variable "user_node_pool_enable_node_public_ip" {
 }
 
 variable "user_node_pool_max_count" {
-  description = "(Required) The maximum number of nodes which should exist within this User Node Pool. Valid values are between 0 and 1000 and must be greater than or equal to `user_node_pool_min_count`."
+  description = "(Required) The maximum number of nodes which should exist within this User Node Pool. Valid values are between 0 and 1000 and must be greater than or equal to `user_node_pool_min_count`. Defaults to 10."
   type        = number
   nullable    = false
   default     = 10
 }
 
 variable "user_node_pool_max_pods" {
-  description = "(Optional) The maximum number of pods that can run on each agent. Changing this forces a new resource to be created."
+  description = "(Optional) The maximum number of pods that can run on each agent. Defaults to 250. Changing this forces a new resource to be created."
   type        = number
+  nullable    = false
   default     = 250
 }
 
 variable "user_node_pool_min_count" {
-  description = "(Required) The minimum number of nodes which should exist within this User Node Pool. Valid values are between 0 and 1000 and must be less than or equal to `user_node_pool_max_count`."
+  description = "(Required) The minimum number of nodes which should exist within this User Node Pool. Valid values are between 0 and 1000 and must be less than or equal to `user_node_pool_max_count`. Defaults to 1."
   type        = number
   nullable    = false
   default     = 1
@@ -498,7 +499,7 @@ variable "user_node_pool_name" {
 }
 
 variable "user_node_pool_node_count" {
-  description = "(Optional) The initial number of nodes which should exist within this User Node Pool. Valid values are between 0 and 1000 and must be a value in the range `user_node_pool_min_count - user_node_pool_max_count`."
+  description = "(Optional) The initial number of nodes which should exist within this User Node Pool. Valid values are between 0 and 1000 and must be a value in the range `user_node_pool_min_count - user_node_pool_max_count`. Defaults to 1."
   type        = number
   nullable    = false
   default     = 1

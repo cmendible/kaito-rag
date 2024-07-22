@@ -20,6 +20,11 @@ variable "sku" {
   description = "(Optional) The SKU which should be used. At this time the only supported value is `Standard`. Defaults to `Standard`."
   type        = string
   default     = "Standard"
+
+  validation {
+    condition     = var.sku == "Standard"
+    error_message = "The NAT Gateway SKU is incorrect. Possible values are `Standard`."
+  }
 }
 
 variable "zones" {

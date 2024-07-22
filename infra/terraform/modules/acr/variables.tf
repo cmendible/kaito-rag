@@ -43,12 +43,12 @@ variable "georeplication_locations" {
 }
 
 variable "log_analytics_workspace_id" {
-  description = "Specifies the resource id of the Azure Log Analytics workspace."
+  description = "Specifies the resource ID of an Azure Log Analytics Workspace to monitor this Azure Container Registry (ACR)."
   type        = string
 }
 
 variable "tags" {
-  description = "(Optional) A mapping of tags to assign to the resource."
+  description = "(Optional) A mapping of tags to assign to this resource."
   type        = map(any)
   default     = {}
 }

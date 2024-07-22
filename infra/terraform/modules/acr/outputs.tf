@@ -8,11 +8,6 @@ output "name" {
   value       = azurerm_container_registry.acr.name
 }
 
-output "resource_group_name" {
-  description = "Specifies the name of the resource group."
-  value       = var.resource_group_name
-}
-
 output "location" {
   value       = azurerm_container_registry.acr.location
   description = "Specifies the location of the Azure Container Registry (ACR)."
