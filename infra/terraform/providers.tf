@@ -1,30 +1,34 @@
 terraform {
-  required_version = ">= 1.4.6"
+  required_version = ">= 1.9.0"
 
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~>3.113.0"
+      version = "~>3.116.0"
     }
     azapi = {
       source  = "azure/azapi"
-      version = "~>1.14.0"
+      version = "~>1.15.0"
     }
     azuread = {
       source  = "hashicorp/azuread"
       version = "~>2.53.1"
     }
-    random = {
-      source  = "hashicorp/random"
-      version = "~>3.6.2"
+    helm = {
+      source  = "hashicorp/helm"
+      version = ">=2.15.0"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "~>2.31.0"
+      version = "~>2.32.0"
     }
     kubectl = {
       source  = "gavinbunney/kubectl"
       version = "~>1.14.0"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = "~>3.6.2"
     }
   }
 }
@@ -74,4 +78,15 @@ provider "kubectl" {
   client_key             = base64decode(module.aks.client_key)
   client_certificate     = base64decode(module.aks.client_certificate)
   cluster_ca_certificate = base64decode(module.aks.cluster_ca_certificate)
+}
+
+provider "helm" {
+  kubernetes {
+    host                   = module.aks.host
+    username               = module.aks.username
+    password               = module.aks.password
+    client_key             = base64decode(module.aks.client_key)
+    client_certificate     = base64decode(module.aks.client_certificate)
+    cluster_ca_certificate = base64decode(module.aks.cluster_ca_certificate)
+  }
 }

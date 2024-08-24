@@ -38,7 +38,6 @@ variable "sku" {
     condition     = var.sku == "Standard" || var.sku == "Premium"
     error_message = "The SKU name of the Key Vault must be either `Standard` or `Premium`."
   }
-
 }
 
 variable "soft_delete_retention_days" {
@@ -51,6 +50,15 @@ variable "soft_delete_retention_days" {
     condition     = var.soft_delete_retention_days >= 7 && var.soft_delete_retention_days <= 90
     error_message = "The number of days that items should be retained for once soft-deleted should be between 7 and 90 days."
   }
+}
+
+variable "secrets" {
+  description = "(Optional) Specifies the secrets to be created in the Key Vault."
+  type = list(object({
+    name  = string
+    value = string
+  }))
+  nullable = true
 }
 
 variable "tags" {

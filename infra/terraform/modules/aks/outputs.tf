@@ -8,9 +8,9 @@ output "id" {
   description = "Specifies the resource id of the AKS cluster."
 }
 
-output "aks_identity_principal_id" {
-  value       = azurerm_user_assigned_identity.aks_identity.principal_id
-  description = "Specifies the principal id of the managed identity of the AKS cluster."
+output "location" {
+  value       = azurerm_kubernetes_cluster.aks.location
+  description = "Specifies the location of the AKS cluster."
 }
 
 output "kubelet_identity_object_id" {
@@ -90,12 +90,4 @@ output "cluster_ca_certificate" {
   description = "The cluster_ca_certificate in the azurerm_kubernetes_cluster's kube_admin_config block. Base64 encoded public CA certificate used as the root of trust for the Kubernetes cluster."
   sensitive   = true
   value       = try(azurerm_kubernetes_cluster.aks.kube_admin_config[0].cluster_ca_certificate, "")
-}
-
-output "aks_workload_managed_identity_client_id" {
-  value = azurerm_user_assigned_identity.aks_workload_identity.client_id
-}
-
-output "aks_workload_managed_identity_id" {
-  value = azurerm_user_assigned_identity.aks_workload_identity.id
 }

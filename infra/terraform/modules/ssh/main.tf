@@ -4,6 +4,12 @@ resource "azapi_resource" "ssh_public_key" {
   location  = var.location
   parent_id = var.resource_group_id
   tags      = var.tags
+
+  lifecycle {
+    ignore_changes = [
+      tags,
+    ]
+  }
 }
 
 resource "azapi_resource_action" "ssh_public_key_gen" {

@@ -16,10 +16,11 @@ variable "name" {
   nullable    = false
 }
 
-variable "principal_id" {
-  description = "(Required) Specifies the principal ID of the user assigned identity."
-  type        = string
+variable "identity_ids" {
+  description = "(Optional) Specifies the list of user assigned identities to be associated with this resource."
+  type        = list(string)
   nullable    = false
+  default     = []
 }
 
 variable "tags" {

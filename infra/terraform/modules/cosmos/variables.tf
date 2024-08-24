@@ -45,6 +45,13 @@ variable "throughput" {
   }
 }
 
+variable "identity_ids" {
+  description = "(Optional) Specifies the list of user assigned identities to be associated with the App Configuration."
+  type        = list(string)
+  nullable    = false
+  default     = []
+}
+
 variable "tags" {
   description = "(Optional) Specifies the tags of this Cosmos DB resource."
   default     = {}

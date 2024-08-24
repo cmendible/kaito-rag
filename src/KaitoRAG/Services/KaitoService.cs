@@ -98,5 +98,8 @@ public class KaitoService
 
         [JsonPropertyName(@"top_p")]
         public double TopP { get; init; } = 1.0;
+
+        [JsonPropertyName(@"repetition_penalty")]
+        public double RepetitionPenalty { get; init; } = 1.0;
     }
 }
