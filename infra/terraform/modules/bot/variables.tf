@@ -22,9 +22,21 @@ variable "location" {
   }
 }
 
-variable "user_assigned_identity_location" {
-  description = "(Optional) Specifies the location of the Azure Bot User Assigned Identity. This value is ignored when `bot_type` is `SingleTenant` or `MultiTenant`."
+variable "msi_name" {
+  description = "(Optional) Specifies the name of an Azure User Assigned Identity to use with this Azure Bot. This value is ignored when `bot_type` is `SingleTenant` or `MultiTenant`, but required when `bot_type` is `UserAssignedMSI`."
   type        = string
+  nullable    = true
+  default     = null
+
+  validation {
+    condition     = var.type != "UserAssignedMSI" || (var.type == "UserAssignedMSI" && var.msi_name != null)
+    error_message = "The Azure Bot type is 'UserAssignedMSI', but the Azure User Assigned Identity name is not provided."
+  }
+}
+
+variable "msi_resource_group_name" {
+  description = "(Optional) Specifies the name of the resource group where the Azure User Assigned Identity is located. This value is ignored when `bot_type` is `SingleTenant` or `MultiTenant`. If the value is `null` but necessary, the resource group name of the Azure Bot will be used."
+  nullable    = true
   default     = null
 }
 
@@ -79,12 +91,6 @@ variable "application_insights_instrumentation_key" {
 
 variable "application_insights_app_id" {
   description = "(Required) Specifies the app id of the Azure Application Insights."
-  type        = string
-  nullable    = false
-}
-
-variable "key_vault_id" {
-  description = "(Required) Specifies the resource id of the Azure Key Vault where to store secrets created by the Azure Bot."
   type        = string
   nullable    = false
 }

@@ -49,7 +49,13 @@ variable "kaito_instance_type_vm_size" {
 }
 
 variable "kaito_identity_name" {
-  description = "(Required) The name of the identity to be created."
+  description = "(Required) Specifies the object ID of the User Assigned Identity to associate with Kaito."
+  type        = string
+  nullable    = false
+}
+
+variable "kaito_identity_resource_group_name" {
+  description = "(Required) Specifies the object ID of the User Assigned Identity to associate with Kaito."
   type        = string
   nullable    = false
 }
@@ -76,6 +82,12 @@ variable "tenant_id" {
 
 variable "dns_zone_name" {
   description = "(Required) The name of the DNS zone."
+  type        = string
+  nullable    = false
+}
+
+variable "kaito_ai_model" {
+  description = "(Required) Specifies the name of the AI model to deploy with Kaito. Not all models are supported. Please refer to the Kaito documentation for more information here: https://github.com/Azure/kaito/blob/main/presets/README.md"
   type        = string
   nullable    = false
 }

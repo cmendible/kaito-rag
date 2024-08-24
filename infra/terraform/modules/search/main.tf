@@ -6,6 +6,12 @@ resource "azurerm_search_service" "search" {
   semantic_search_sku          = var.sku_semantic_search
   local_authentication_enabled = var.local_authentication_enabled
   tags                         = var.tags
+
+  lifecycle {
+    ignore_changes = [
+      tags,
+    ]
+  }
 }
 
 resource "azurerm_role_assignment" "search_reader" {
