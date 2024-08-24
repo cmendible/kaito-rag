@@ -1,11 +1,12 @@
 resource "azurerm_cosmosdb_account" "db" {
-  name                      = var.name
-  location                  = var.location
-  resource_group_name       = var.resource_group_name
-  offer_type                = "Standard" # Specifies the `Offer Type` to use for this CosmosDB Account; currently, this can only be set to `Standard`.
-  kind                      = "GlobalDocumentDB"
-  enable_automatic_failover = false
-  tags                      = var.tags
+  name                       = var.name
+  location                   = var.location
+  resource_group_name        = var.resource_group_name
+  offer_type                 = "Standard" # Specifies the `Offer Type` to use for this CosmosDB Account; currently, this can only be set to `Standard`.
+  kind                       = "GlobalDocumentDB"
+  automatic_failover_enabled = false
+
+  tags = var.tags
 
   consistency_policy {
     consistency_level       = "BoundedStaleness"
@@ -16,6 +17,17 @@ resource "azurerm_cosmosdb_account" "db" {
   geo_location {
     location          = var.location
     failover_priority = 0
+  }
+
+  identity {
+    type         = "UserAssigned"
+    identity_ids = var.identity_ids
+  }
+
+  lifecycle {
+    ignore_changes = [
+      tags,
+    ]
   }
 }
 

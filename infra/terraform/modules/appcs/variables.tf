@@ -16,12 +16,6 @@ variable "location" {
   nullable    = false
 }
 
-variable "principal_id" {
-  description = "(Required) Specifies the principal ID of the user assigned identity."
-  type        = string
-  nullable    = false
-}
-
 variable "tags" {
   description = "(Optional) Specifies the tags for this resource."
   type        = map(any)
@@ -71,21 +65,30 @@ variable "public_network_access" {
   }
 }
 
-variable "identity_type" {
-  description = " (Required) Specifies the type of Managed Service Identity that should be configured on this App Configuration. Possible values are `SystemAssigned`, `UserAssigned`, `SystemAssigned, UserAssigned` (to enable both). Defaults to both enalbe."
-  type        = string
-  nullable    = false
-  default     = "SystemAssigned, UserAssigned" # Default both enalbe
-
-  validation {
-    condition     = contains(["SystemAssigned", "UserAssigned", "SystemAssigned, UserAssigned"], var.identity_type)
-    error_message = "The Managed Service Identity type is incorrect. Possible values are `SystemAssigned`, `UserAssigned`, `SystemAssigned, UserAssigned`."
-  }
-}
-
 variable "identity_ids" {
   description = "(Optional) Specifies the list of user assigned identities to be associated with the App Configuration."
   type        = list(string)
   nullable    = false
   default     = []
+}
+
+variable "secrets" {
+  description = "(Optional) Specifies the list of secrets to be stored in the Azure App Configuration."
+  type = list(object({
+    label     = string
+    key       = string
+    reference = string
+  }))
+  default = []
+}
+
+variable "values" {
+  description = "(Optional) Specifies the list of non-secret or sensitive values to be stored in the Azure App Configuration."
+  type = list(object({
+    label        = string
+    key          = string
+    value        = string
+    content_type = optional(string)
+  }))
+  default = []
 }

@@ -15,3 +15,9 @@ variable "name" {
   type        = string
   nullable    = false
 }
+
+variable "tags" {
+  description = "(Optional) Specifies the tags of the Azure Manage Identity."
+  default     = {}
+  nullable    = false
+}

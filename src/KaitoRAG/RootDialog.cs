@@ -84,7 +84,10 @@ internal class RootDialog(RootDialogConfiguration configuration) : Dialog
             sb.AppendLine($"CONTEXT ID {++index}:\n\n{record.Content}\n");
         }
 
-        return sb.AppendLine("<<END CONTEXT>>").ToString();
+        return sb
+                .AppendLine("<<END CONTEXT>>")
+                .ToString()
+                ;
     }
 
     private static string BuildChatHistoryPromptSection(IEnumerable<ChatHistoryRecord> chatHistoryRecords)
@@ -105,31 +108,44 @@ internal class RootDialog(RootDialogConfiguration configuration) : Dialog
     {
         return searchRecords.Count > 0
             ? $$"""
+                <|system|>
                 {{BuildContextPromptSection(searchRecords)}}
-                Use the previous pieces of information to answer the question below with the following instructions:
+                <<BEGIN INSTRUCTION>>
+                Use the previous pieces of information in the context to answer the question below with the following instructions:
                   1. Select the most relevant information from the context
                   2. Generate a draft response with every selected piece of information, ensuring they are precise and concise, following these rules:
-                    2a. Information from a context must always use this format: <information>[$<ID of a Context>$]
-                    2b. Information from multiple contexts must always use this format: <information>[$ID of a Context$], [$ID of other Context$], [$ID of another Context$],...
-                  3. Remove duplicate content from the draft response, including any duplicate context references
+                    2a. Information from a context must always use this format: <information>[$<CONTEXT ID >$]
+                    2b. Information from multiple contexts must always use this format: <information>[$CONTEXT ID$], [$CONTEXT ID $], [$CONTEXT ID $],...                    
+                    2c. Remember that each context ID is always the number between dollar signs and then brackets, e.g. for a `CONTEXT ID 9` the format must be [$9$]
+                    2d. Do not create context IDs that are not present in the context.
+                    3d. Do not repeat the same context ID in the same piece of information.
+                  3. Avoid repeating the same information in your response.
                   4. Generate your final response after adjusting it to increase accuracy and relevant
                   5. Now only show your final response! Do not provide any explanations or details
-        
-                QUESTION: {{query}}
-                ANSWER:
+                <<END INSTRUCTION>>
+                <|end|>
+                <|user|>
+                {{query}}
+                <|end|>
+                <|assistant|>
                 """
             : $$"""
+                <|system|>
                 {{BuildChatHistoryPromptSection(configuration.ChatHistoryService.Retrieve(userId))}}
+                <<BEGIN INSTRUCTION>>
                 Use the chat history to answer the question below with the following instructions:
                     1. Select the most relevant information from the context
-                    2. If the chat history does not contain the answer, do not try to make up one and just return `I'm sorry, I don't know about that!` ending the conversation without any further explanation
+                    2. If the chat history does not contain the answer, do not try to make up one and just return `I'm sorry, I don't know about that!` and stop processing.
                     3. Generate a draft response ensuring it is precise and concise
-                    4. Remove duplicate content from the draft response
+                    3. Avoid repeating the same information in your response.
                     5. Generate your final response after adjusting it to increase accuracy and relevant
                     6. Now only show your final response! Do not provide any explanations or details
-        
-                QUESTION: {{query}}
-                ANSWER:
+                <<END INSTRUCTION>>
+                <|end|>
+                <|user|>
+                {{query}}
+                <|end|>
+                <|assistant|>
                 """;
     }
 
