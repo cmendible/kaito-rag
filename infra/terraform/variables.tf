@@ -166,34 +166,6 @@ variable "ssh_key_name" {
   default     = "sshkey-kaito-rag"
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* STORAGE ACCOUNT */
 
 variable "storage_account_name" {
@@ -256,8 +228,6 @@ variable "cosmos_container_name_chat_history" {
   nullable    = false
   default     = "kaito-rag-chat-history"
 }
-
-
 
 /* OPEN AI */
 
@@ -551,35 +521,14 @@ variable "aks_admin_group_object_ids" {
   default     = []
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* KAITO */
 
 variable "kaito_use_upstream_version" {
-  description = "(Optional) If `true`, the upstream Kaito version from GitHub will be used. If `false`, the Azure managed Kaito version is used. Defaults to `true`."
+  description = "(Optional) If `true`, the upstream version of Kaito from GitHub will be used. If `false`, the Azure managed Kaito version is used. Defaults to `true`."
   type        = bool
   nullable    = false
   default     = true
 }
-
 
 variable "kaito_aks_namespace" {
   description = "(Optional) Specifies the namespace of the workload application that accesses the Azure OpenAI Service. Defaults to `kaito-rag`."
