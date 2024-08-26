@@ -64,8 +64,6 @@ provider "azuread" {}
 
 provider "kubernetes" {
   host                   = module.aks.host
-  username               = module.aks.username
-  password               = module.aks.password
   client_key             = base64decode(module.aks.client_key)
   client_certificate     = base64decode(module.aks.client_certificate)
   cluster_ca_certificate = base64decode(module.aks.cluster_ca_certificate)
@@ -73,8 +71,6 @@ provider "kubernetes" {
 
 provider "kubectl" {
   host                   = module.aks.host
-  username               = module.aks.username
-  password               = module.aks.password
   client_key             = base64decode(module.aks.client_key)
   client_certificate     = base64decode(module.aks.client_certificate)
   cluster_ca_certificate = base64decode(module.aks.cluster_ca_certificate)
@@ -83,8 +79,6 @@ provider "kubectl" {
 provider "helm" {
   kubernetes {
     host                   = module.aks.host
-    username               = module.aks.username
-    password               = module.aks.password
     client_key             = base64decode(module.aks.client_key)
     client_certificate     = base64decode(module.aks.client_certificate)
     cluster_ca_certificate = base64decode(module.aks.cluster_ca_certificate)
