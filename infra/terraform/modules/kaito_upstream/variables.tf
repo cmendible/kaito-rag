@@ -24,6 +24,13 @@ variable "tags" {
 
 /* Kaito */
 
+variable "use_upstream_version" {
+  description = "(Optional) If `true`, the upstream version of Kaito from GitHub will be used. If `false`, the Azure managed Kaito version is used. Defaults to `true`."
+  type        = bool
+  nullable    = false
+  default     = true
+}
+
 variable "gpu_provisioner_version" {
   description = "(Required) Specifies the version of the GPU provisioner. Currently, the only supported versions are `0.1.0` and `0.2.0`. Defaults to `0.2.0`. More info: https://github.com/Azure/gpu-provisioner/blob/main/charts/gpu-provisioner/README.md"
   type        = string
