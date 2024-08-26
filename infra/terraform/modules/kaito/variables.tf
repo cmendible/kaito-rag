@@ -22,33 +22,7 @@ variable "tags" {
   nullable    = false
 }
 
-/* Kaito */
-
-variable "use_upstream_version" {
-  description = "(Optional) If `true`, the upstream version of Kaito from GitHub will be used. If `false`, the Azure managed Kaito version is used. Defaults to `true`."
-  type        = bool
-  nullable    = false
-  default     = true
-}
-
-variable "gpu_provisioner_version" {
-  description = "(Required) Specifies the version of the GPU provisioner. Currently, the only supported versions are `0.1.0` and `0.2.0`. Defaults to `0.2.0`. More info: https://github.com/Azure/gpu-provisioner/blob/main/charts/gpu-provisioner/README.md"
-  type        = string
-  nullable    = false
-  default     = "0.2.0"
-
-  validation {
-    condition     = can(regex("0.1.0|0.2.0", var.gpu_provisioner_version))
-    error_message = "Currently, the GPU provisioner version must be either `0.1.0` or `0.2.0`."
-  }
-}
-
-variable "gpu_provisioner_replicas" {
-  description = "(Optional) Specifies the number of replicas of the GPU provisioner. Defaults to `1`."
-  type        = number
-  nullable    = false
-  default     = 1
-}
+/* AKS Parameters */
 
 variable "aks_id" {
   description = "(Required) The ID of the AKS cluster."
@@ -80,10 +54,42 @@ variable "aks_oidc_issuer_url" {
   nullable    = false
 }
 
+/* GPU Provisioner */
+
+variable "gpu_provisioner_version" {
+  description = "(Required) Specifies the version of the GPU provisioner. Currently, the only supported versions are `0.1.0` and `0.2.0`. Defaults to `0.2.0`. More info: https://github.com/Azure/gpu-provisioner/blob/main/charts/gpu-provisioner/README.md"
+  type        = string
+  nullable    = false
+  default     = "0.2.0"
+
+  validation {
+    condition     = can(regex("0.1.0|0.2.0", var.gpu_provisioner_version))
+    error_message = "Currently, the GPU provisioner version must be either `0.1.0` or `0.2.0`."
+  }
+}
+
+variable "gpu_provisioner_replicas" {
+  description = "(Optional) Specifies the number of replicas of the GPU provisioner. Defaults to `1`."
+  type        = number
+  nullable    = false
+  default     = 1
+}
+
+/* NSG Paramters */
+
 variable "network_security_group_name" {
   description = "(Required) Specifies the name of the Azure Network Security Group (NSG) to configure with rules for the Ollama service."
   type        = string
   nullable    = false
+}
+
+/* Kaito */
+
+variable "use_upstream_version" {
+  description = "(Optional) If `true`, the upstream version of Kaito from GitHub will be used. If `false`, the Azure managed Kaito version is used. Defaults to `true`."
+  type        = bool
+  nullable    = false
+  default     = true
 }
 
 variable "kaito_inference_port" {
