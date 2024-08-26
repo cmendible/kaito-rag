@@ -29,7 +29,6 @@ locals {
   name_kv                      = "${var.key_vault_name}${local.name_suffix}"
   name_appcs                   = "${var.appcs_name}${local.name_suffix}"
   name_nsg                     = "${var.nsg_name}${local.name_suffix}"
-  name_pip                     = "${var.pip_name}${local.name_suffix}"
 
   aks_admin_group_object_ids = concat(var.aks_admin_group_object_ids, [data.azuread_user.current_user.object_id])
 
@@ -87,14 +86,6 @@ module "network" {
   nsg_name                   = local.name_nsg
   log_analytics_workspace_id = module.log_analytics_workspace.id
   tags                       = local.tags
-}
-
-module "public_ip" {
-  source              = "./modules/pip"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = var.location
-  name                = local.name_pip
-  tags                = local.tags
 }
 
 module "openai" {
@@ -204,32 +195,13 @@ data "azurerm_resource_group" "node_resource_group" {
 
 /* KAITO - Kubernetes AI Toolchain Operator */
 
-# # module "kaito_managed" {
-# #   source                                  = "./modules/kaito_managed"
-# #   count                                   = var.kaito_use_upstream_version ? 0 : 1
-
-# #   resource_group_id                       = azurerm_resource_group.rg.id
-# #   resource_group_name                     = azurerm_resource_group.rg.name
-# #   tenant_id                               = data.azurerm_client_config.current.tenant_id
-# #   kaito_aks_namespace                     = var.kaito_aks_namespace
-# #   aks_id                                  = module.aks.id
-# #   aks_node_resource_group_name            = data.azurerm_resource_group.node_resource_group.name
-# #   aks_oidc_issuer_url                     = module.aks.oidc_issuer_url
-# #   ask_workload_managed_identity_id        = module.aks.aks_workload_managed_identity_id
-# #   ask_workload_managed_identity_client_id = module.aks.aks_workload_managed_identity_client_id
-# #   kaito_identity_name                     = local.kaito_identity_name
-# #   kaito_instance_type_vm_size             = var.kaito_instance_type_vm_size
-# #   kaito_service_account_name              = var.kaito_service_account_name
-# #   dns_zone_name                           = var.aks_dns_zone_name
-# # }
-
 locals {
   kaito_identity_name                = var.kaito_use_upstream_version ? module.mi.name : "ai-toolchain-operator-${lower(local.name_aks)}"
   kaito_identity_resource_group_name = var.kaito_use_upstream_version ? module.mi.resource_group_name : data.azurerm_resource_group.node_resource_group.name
 }
 
 module "kaito" {
-  source                             = "./modules/kaito_upstream"
+  source                             = "./modules/kaito"
   use_upstream_version               = var.kaito_use_upstream_version
   resource_group_id                  = azurerm_resource_group.rg.id
   resource_group_name                = azurerm_resource_group.rg.name
