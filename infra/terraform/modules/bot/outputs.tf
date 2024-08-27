@@ -1,4 +1,6 @@
 locals {
+  # The base URL of the Direct Line channel changes based on the Azure Bot's location.
+  # More info: https://learn.microsoft.com/en-us/azure/bot-service/rest-api/bot-framework-rest-direct-line-3-0-api-reference?view=azure-bot-service-4.0#base-uri
   direct_line_urls = {
     global       = "https://directline.botframework.com"
     westeurope   = "https://europe.directline.botframework.com"
@@ -6,7 +8,7 @@ locals {
   }
 
   # Based on the location of the Azure Bot, look up for the Direct Line URL. If not found, use the global URL as default.
-  bot_url = lookup(local.direct_line_urls, var.location, local.direct_line_urls.global)
+  base_direct_line_url = lookup(local.direct_line_urls, var.location, local.direct_line_urls.global)
 }
 
 output "type" {
@@ -32,7 +34,7 @@ output "password" {
 
 output "direct_line_endpoint" {
   description = "The endpoint of the Direct Line channel."
-  value       = local.bot_url
+  value       = "${local.base_direct_line_url}/v3/directline/"
 }
 
 output "direct_line_key" {
