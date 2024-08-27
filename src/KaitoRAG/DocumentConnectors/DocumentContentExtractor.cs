@@ -25,16 +25,16 @@ public sealed class DocumentContentExtractor
     };
 
     // Currently, the encoding `cl100k_base` is used by the `text-embedding-ada-002`, `text-embedding-3-small` and `text-embedding-3-large` embedding models.
-    private static readonly GptEncoding DefaultGptEncoding = GptEncoding.GetEncoding(@"cl100k_base");
-
-    private readonly RecursiveCharacterTextSplitter recursiveCharacterTextSplitter;
+    private static readonly GptEncoding GptEncoding = GptEncoding.GetEncoding(@"cl100k_base");
 
     private DocumentContentExtractorOptions options;
 
-    public DocumentContentExtractor(RecursiveCharacterTextSplitter recursiveCharacterTextSplitter, IOptionsMonitor<DocumentContentExtractorOptions> optionsMonitor)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DocumentContentExtractor"/> class.
+    /// </summary>
+    /// <param name="optionsMonitor">A monitor for this class options.</param>
+    public DocumentContentExtractor(IOptionsMonitor<DocumentContentExtractorOptions> optionsMonitor)
     {
-        this.recursiveCharacterTextSplitter = recursiveCharacterTextSplitter;
-
         options = optionsMonitor.CurrentValue;
 
         optionsMonitor.OnChange(newOptions => options = newOptions);
@@ -53,26 +53,22 @@ public sealed class DocumentContentExtractor
     public List<string> GetDocumentContent(Stream stream, string fileExtension)
     {
         var connector = GetDocumentConnector(fileExtension);
+        var content = connector.ReadText(stream).Replace(@"- ", string.Empty); // Reads the whole text and fixes any words that are split by a hyphen.
 
-        var content = connector.ReadText(stream);
+        var lines = TextChunker.SplitPlainTextLines(content, maxTokensPerLine: options.MaxTokensPerLine, tokenCounter: TokenCounter);
+        var paragraphs = TextChunker.SplitPlainTextParagraphs(lines, maxTokensPerParagraph: options.MaxTokensPerParagraph, tokenCounter: TokenCounter);
 
-        var splits = recursiveCharacterTextSplitter.Split(content, content => DefaultGptEncoding.Encode(content).Count);
-
-        ////// Azure OpenAI currently supports input arrays up to 16 for `text-embedding-ada-002` (Version 2).
-        ////// Both require the max input token limit per API request to remain under 8191 for this model.
-        //////var chunks = ChunkByAggregate(splits, seed: 0, aggregator: (tokenCount, paragraph) => tokenCount + DefaultGptEncoding.Encode(paragraph).Count, predicate: (tokenCount, index) => tokenCount < 8191 && index < 16);
-
-        //////return chunks.ToList();
-
-        return splits.ToList();
+        return paragraphs;
     }
 
-    private IDocumentConnector GetDocumentConnector(string fileExtension)
+    private static int TokenCounter(string content) => GptEncoding.Encode(content).Count;
+
+    private static IDocumentConnector GetDocumentConnector(string fileExtension)
     {
         return GetDocumentConnector(fileExtension, true)!;
     }
 
-    private IDocumentConnector? GetDocumentConnector(string fileExtension, bool throwException)
+    private static IDocumentConnector? GetDocumentConnector(string fileExtension, bool throwException)
     {
         if (DocumentConnectors.TryGetValue(fileExtension.ToUpperInvariant(), out var value))
         {
