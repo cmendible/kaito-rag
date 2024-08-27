@@ -33,7 +33,7 @@ locals {
   aks_admin_group_object_ids = concat(var.aks_admin_group_object_ids, [data.azuread_user.current_user.object_id])
 
   tags = merge(var.tags, {
-    createdOn = "${formatdate("YYYY-MM-DD hh:mm:ss", timestamp())} UTC"
+    createdAt = "${formatdate("YYYY-MM-DD hh:mm:ss", timestamp())} UTC"
     suffix    = local.suffix
   })
 }
@@ -233,27 +233,27 @@ module "kv" {
   tags                       = local.tags
   secrets = [
     {
-      name  = "ConnectionStrings__ApplicationInsights"
+      name  = "ConnectionStrings:ApplicationInsights"
       value = module.application_insights.connection_string
     },
     {
-      name  = "AzureOpenAIOptions__Key"
+      name  = "AzureOpenAIOptions:Key"
       value = module.openai.key
     },
     {
-      name  = "AzureSearchOptions__Key"
+      name  = "AzureSearchOptions:Key"
       value = module.search.key
     },
     {
-      name  = "CosmosChatHistoryServiceOptions__Key"
+      name  = "CosmosChatHistoryServiceOptions:Key"
       value = module.cosmos.key
     },
     {
-      name  = "DirectLineOptions__DirectLineToken"
+      name  = "DirectLineOptions:DirectLineToken"
       value = module.bot.direct_line_key
     },
     {
-      name  = "DocumentServiceOptions__BlobStorageConnectionString"
+      name  = "DocumentServiceOptions:BlobStorageConnectionString"
       value = module.st.connection_string
     },
     {
@@ -284,42 +284,42 @@ module "appcs" {
   values = [
     {
       label = var.appcs_label
-      key   = "AzureSearchOptions__Endpoint"
+      key   = "AzureSearchOptions:Endpoint"
       value = "https://${local.name_search}.search.windows.net"
     },
     {
       label = var.appcs_label
-      key   = "AzureSearchOptions__ResultThreshold"
-      value = "3.0"
+      key   = "AzureSearchOptions:ResultThreshold"
+      value = "2.2"
     },
     {
       label = var.appcs_label
-      key   = "AzureOpenAIOptions__Endpoint"
+      key   = "AzureOpenAIOptions:Endpoint"
       value = module.openai.endpoint
     },
     {
       label = var.appcs_label
-      key   = "AzureOpenAIOptions__EmbeddingsModelDeploymentName"
+      key   = "AzureOpenAIOptions:EmbeddingsModelDeploymentName"
       value = module.openai.embedding_deployment_name
     },
     {
       label = var.appcs_label
-      key   = "CosmosChatHistoryServiceOptions__Endpoint"
+      key   = "CosmosChatHistoryServiceOptions:Endpoint"
       value = module.cosmos.endpoint
     },
     {
       label = var.appcs_label
-      key   = "CosmosChatHistoryServiceOptions__ContainerId"
+      key   = "CosmosChatHistoryServiceOptions:ContainerId"
       value = var.cosmos_container_name_chat_history
     },
     {
       label = var.appcs_label
-      key   = "CosmosChatHistoryServiceOptions__DatabaseId"
+      key   = "CosmosChatHistoryServiceOptions:DatabaseId"
       value = var.cosmos_database_name
     },
     {
       label = var.appcs_label
-      key   = "CosmosChatHistoryServiceOptions__MaxRecords"
+      key   = "CosmosChatHistoryServiceOptions:MaxRecords"
       value = "3"
     },
     {
@@ -329,22 +329,22 @@ module "appcs" {
     },
     {
       label = var.appcs_label
-      key   = "DirectLineOptions__DirectLineEndpoint"
+      key   = "DirectLineOptions:DirectLineEndpoint"
       value = module.bot.direct_line_endpoint
     },
     {
       label = var.appcs_label
-      key   = "DocumentContentExtractorOptions__MaxTokensPerLine"
-      value = "10"
+      key   = "DocumentContentExtractorOptions:MaxTokensPerLine"
+      value = "40"
     },
     {
       label = var.appcs_label
-      key   = "DocumentContentExtractorOptions__MaxTokensPerParagraph"
-      value = "20"
+      key   = "DocumentContentExtractorOptions:MaxTokensPerParagraph"
+      value = "120"
     },
     {
       label = var.appcs_label
-      key   = "DocumentServiceOptions__ProgressReportChunksInterval"
+      key   = "DocumentServiceOptions:ProgressReportChunksInterval"
       value = "5"
     },
     {
@@ -364,33 +364,23 @@ module "appcs" {
     },
     {
       label = var.appcs_label
-      key   = "RecursiveCharacterTextSplitterOptions__ChunkOverlap"
-      value = "30"
-    },
-    {
-      label = var.appcs_label
-      key   = "RecursiveCharacterTextSplitterOptions__ChunkSize"
-      value = "300"
-    },
-    {
-      label = var.appcs_label
-      key   = "KaitoInferenceOptions__InferenceEndpoint"
+      key   = "KaitoInferenceOptions:InferenceEndpoint"
       value = module.kaito.endpoint
     },
     {
       label = var.appcs_label
-      key   = "KaitoInferenceOptions__Temperature"
+      key   = "KaitoInferenceOptions:Temperature"
       value = "0.01"
     },
     {
       label = var.appcs_label
-      key   = "KaitoInferenceOptions__TopP"
-      value = "1.0"
+      key   = "KaitoInferenceOptions:TopP"
+      value = "0.01"
     },
     {
       label = var.appcs_label
-      key   = "KaitoInferenceOptions__MaxLength"
-      value = "2000"
+      key   = "KaitoInferenceOptions:MaxLength"
+      value = "200"
     },
   ]
 }
