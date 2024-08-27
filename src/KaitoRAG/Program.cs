@@ -6,8 +6,6 @@ using Azure;
 using Azure.AI.OpenAI;
 using Azure.Identity;
 
-using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
-
 using KaitoRAG;
 using KaitoRAG.DocumentConnectors;
 using KaitoRAG.Options;
@@ -91,7 +89,6 @@ builder.Services.AddOptionsWithValidateOnStart<DirectLineOptions>().Bind(builder
 builder.Services.AddOptionsWithValidateOnStart<DocumentContentExtractorOptions>().Bind(builder.Configuration.GetSection(nameof(DocumentContentExtractorOptions))).ValidateDataAnnotations();
 builder.Services.AddOptionsWithValidateOnStart<DocumentServiceOptions>().Bind(builder.Configuration.GetSection(nameof(DocumentServiceOptions))).ValidateDataAnnotations();
 builder.Services.AddOptionsWithValidateOnStart<KaitoInferenceOptions>().Bind(builder.Configuration.GetSection(nameof(KaitoInferenceOptions))).ValidateDataAnnotations();
-builder.Services.AddOptionsWithValidateOnStart<RecursiveCharacterTextSplitterOptions>().Bind(builder.Configuration.GetSection(nameof(RecursiveCharacterTextSplitterOptions))).ValidateDataAnnotations();
 
 /* Logging Configuration */
 
@@ -120,7 +117,6 @@ builder.Services.AddApplicationInsightsTelemetry(builder.Configuration)
                 .AddSingleton<UserAttachmentServiceConfiguration>()
                 .AddSingleton<GlobalDocumentsService>()
                 .AddSingleton<GlobalDocumentsServiceConfiguration>()
-                .AddSingleton<RecursiveCharacterTextSplitter>()
                 .AddSingleton<KaitoService>()
                 .AddSingleton<CosmosChatHistoryService>()
                 .AddHealthChecks()

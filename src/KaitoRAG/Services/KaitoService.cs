@@ -8,10 +8,14 @@ using KaitoRAG.Options;
 
 using Microsoft.Extensions.Options;
 
+using SharpToken;
+
 namespace KaitoRAG.Services;
 
 public class KaitoService
 {
+    private static readonly GptEncoding GptEncoding = GptEncoding.GetEncoding(@"cl100k_base");
+
     private static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
         AllowTrailingCommas = true,
@@ -41,7 +45,7 @@ public class KaitoService
             Prompt = prompt,
             KaitoKeywordArguments = new KaitoKeywordArguments()
             {
-                MaxLength = options.MaxLength,
+                MaxLength = GptEncoding.Encode(prompt).Count + options.MaxLength,
                 Temperature = options.Temperature,
                 TopP = options.TopP,
             },
@@ -75,8 +79,11 @@ public class KaitoService
         [JsonPropertyName(@"return_full_text")]
         public bool ReturnFullText { get; init; } = false;
 
+        [JsonPropertyName(@"clean_up_tokenization_spaces")]
+        public bool CleanUpTokenizationSpaces { get; init; } = true;
+
         [JsonPropertyName(@"generate_kwargs")]
-        public KaitoKeywordArguments KaitoKeywordArguments { get; init; } = new();
+        public KaitoKeywordArguments KaitoKeywordArguments { get; set; } = new();
     }
 
     private sealed class KaitoResponse
@@ -88,18 +95,12 @@ public class KaitoService
     private sealed class KaitoKeywordArguments
     {
         [JsonPropertyName(@"max_length")]
-        public int MaxLength { get; init; } = 4096;
-
-        [JsonPropertyName(@"min_length")]
-        public int MinLength { get; init; } = 0;
+        public int MaxLength { get; set; } = 4096;
 
         [JsonPropertyName(@"temperature")]
-        public double Temperature { get; init; } = 1.0;
+        public double Temperature { get; set; } = 1.0;
 
         [JsonPropertyName(@"top_p")]
-        public double TopP { get; init; } = 1.0;
-
-        [JsonPropertyName(@"repetition_penalty")]
-        public double RepetitionPenalty { get; init; } = 1.0;
+        public double TopP { get; set; } = 1.0;
     }
 }
