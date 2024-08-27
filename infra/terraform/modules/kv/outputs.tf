@@ -15,7 +15,7 @@ output "secrets" {
   value = [
     for s in azurerm_key_vault_secret.secrets :
     {
-      key       = replace(s.name, "--", "_")
+      key       = replace(s.name, "--", ":")
       reference = s.versionless_id
     }
   ]

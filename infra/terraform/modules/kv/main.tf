@@ -51,7 +51,7 @@ resource "azurerm_key_vault_access_policy" "current_user_principal" {
 resource "azurerm_key_vault_secret" "secrets" {
   # Create a map for each secret in `var.secrets` where the key is the secret name and the value is the secret value.
   # Azure Key Vault secrets do not allow underscores in their names. Use a double hyphen instead.
-  for_each = { for secret in var.secrets : replace(secret.name, "_", "--") => secret.value }
+  for_each = { for secret in var.secrets : replace(secret.name, ":", "--") => secret.value }
 
   name         = each.key
   value        = each.value
