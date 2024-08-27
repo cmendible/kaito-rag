@@ -135,6 +135,19 @@ public abstract class SearchServiceBase
         await WaitForRecordsToBeAvailableAsync(records.Count, cancellationToken);
     }
 
+    public async Task<bool> HasSearchRecordsAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            return (await SearchClient.GetDocumentCountAsync(cancellationToken)).Value > 0;
+        }
+        catch
+        {
+            // If the index does not exists, an exception will be thrown. Interpret this as no records.
+            return false;
+        }
+    }
+
     protected async Task CreateIfNotExistsAsync(CancellationToken cancellationToken)
     {
         try
@@ -155,15 +168,15 @@ public abstract class SearchServiceBase
         }
 
         const string profileName = @"default";
-        const string algorithmName = @"exhaustiveKnnProfile";
-        const string contentAnaluzerName = @"en.microsoft";
+        const string algorithmName = @"ExhaustiveKnnProfile";
+        const string contentAnalyzerName = @"en.microsoft";
 
         var newIndex = new SearchIndex(IndexName)
         {
             Fields =
             [
                 new SimpleField(SearchRecord.IdField, SearchFieldDataType.String) { IsKey = true },
-                new SearchableField(SearchRecord.ContentField) { IsFilterable = true, AnalyzerName = contentAnaluzerName },
+                new SearchableField(SearchRecord.ContentField) { IsFilterable = true, AnalyzerName = contentAnalyzerName },
                 new VectorSearchField(SearchRecord.EmbeddingField, embeddingSize, profileName),
                 new SimpleField(SearchRecord.CreatedAtUtcField, SearchFieldDataType.DateTimeOffset) { IsFilterable = true },
                 new SimpleField(SearchRecord.UserIdField, SearchFieldDataType.String) { IsFilterable = true },
@@ -176,7 +189,6 @@ public abstract class SearchServiceBase
                 {
                     new SemanticConfiguration(Constants.SemanticRanker.ConfigurationName, new()
                     {
-                        TitleField = new SemanticField(SearchRecord.TitleField),
                         ContentFields =
                         {
                             new SemanticField(SearchRecord.ContentField),
@@ -206,19 +218,6 @@ public abstract class SearchServiceBase
         return SearchIndexClient.CreateIndexAsync(newIndex, cancellationToken);
     }
 
-    public async Task<bool> HasSearchRecordsAsync(CancellationToken cancellationToken)
-    {
-        try
-        {
-            return (await SearchClient.GetDocumentCountAsync(cancellationToken)).Value > 0;
-        }
-        catch
-        {
-            // If the index does not exists, an exception will be thrown. Interpret this as no records.
-            return false;
-        }
-    }
-
     protected async Task<IEnumerable<SearchRecord>?> SearchRecordsAsync(string query, string? filter, CancellationToken cancellationToken)
     {
         if (!await HasSearchRecordsAsync(cancellationToken))
@@ -236,11 +235,6 @@ public abstract class SearchServiceBase
             SemanticSearch = new SemanticSearchOptions()
             {
                 SemanticConfigurationName = Constants.SemanticRanker.ConfigurationName,
-                QueryCaption = new(QueryCaptionType.Extractive),
-                QueryAnswer = new(QueryAnswerType.Extractive)
-                {
-                    Count = 3,
-                },
             },
             VectorSearch = new()
             {
@@ -248,7 +242,7 @@ public abstract class SearchServiceBase
                 {
                     new VectorizedQuery(await embeddingGenerationService.GenerateEmbeddingAsync(query, kernel, cancellationToken))
                     {
-                        KNearestNeighborsCount = 3,
+                        KNearestNeighborsCount = 10,
                         Exhaustive = true,
                         Fields =
                         {

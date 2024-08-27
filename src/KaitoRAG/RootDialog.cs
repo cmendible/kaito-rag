@@ -12,7 +12,7 @@ namespace KaitoRAG;
 
 internal class RootDialog(RootDialogConfiguration configuration) : Dialog
 {
-    private static readonly Regex ResponseExtractReferenceNumbersPattern = new(@"\[\$(\d+)\$\]", RegexOptions.Compiled, TimeSpan.FromSeconds(1));
+    private static readonly Regex ResponseExtractReferenceNumbersPattern = new(@"\[\^(\d+)\^\]", RegexOptions.Compiled, TimeSpan.FromSeconds(1));
 
     /// <inheritdoc/>>
     public override async Task<DialogTurnResult> BeginDialogAsync(DialogContext dc, object options = null, CancellationToken cancellationToken = default)
@@ -33,7 +33,8 @@ internal class RootDialog(RootDialogConfiguration configuration) : Dialog
 
             var searchRecords = (await Task.WhenAll(searchTasks)).SelectMany(x => x ?? []).ToList();
 
-            var response = await configuration.KaitoService.GetInferenceAsync(BuildSystemPrompt(query, userId, searchRecords), cancellationToken: cancellationToken);
+            var prompt = BuildSystemPrompt(query, userId, searchRecords);
+            var response = await configuration.KaitoService.GetInferenceAsync(prompt, cancellationToken: cancellationToken);
             var markdownResponse = MarkdownReferenceFormatter(response, searchRecords);
 
             var responseActivity = MessageFactory.Text(markdownResponse);
@@ -55,6 +56,14 @@ internal class RootDialog(RootDialogConfiguration configuration) : Dialog
         var formattedInput = ResponseExtractReferenceNumbersPattern.Replace(input, m =>
         {
             var footnoteReferenceNumber = int.Parse(m.Groups[1].Value);
+
+            // With some Small Language Models (SMLs), hallucinations are sometimes inevitable.
+            // If the reference number is out of bounds, because it's a hallucination, return an empty string.
+            if (footnoteReferenceNumber > searchRecords.Count)
+            {
+                return string.Empty;
+            }
+
             var footnoteSearchRecord = searchRecords[footnoteReferenceNumber - 1];
             var url = footnoteSearchRecord.Url;
             var title = footnoteSearchRecord.Title;
@@ -76,76 +85,63 @@ internal class RootDialog(RootDialogConfiguration configuration) : Dialog
 
     private static string BuildContextPromptSection(IEnumerable<SearchRecord> searchRecords)
     {
-        var sb = new StringBuilder("<<BEGIN CONTEXT>>\n\n");
+        var sb = new StringBuilder();
         var index = 0; // Start index at 1 for human-readable indexing
 
         foreach (var record in searchRecords)
         {
-            sb.AppendLine($"CONTEXT ID {++index}:\n\n{record.Content}\n");
+            sb.AppendLine($"[^{++index}^]: {record.Content?.Replace("\r\n", " ").Replace('\n', ' ')}\n---");
         }
 
-        return sb
-                .AppendLine("<<END CONTEXT>>")
-                .ToString()
-                ;
+        return sb.ToString();
     }
 
     private static string BuildChatHistoryPromptSection(IEnumerable<ChatHistoryRecord> chatHistoryRecords)
     {
-        var sb = new StringBuilder("<<BEGIN CHAT HISTORY>>");
+        var sb = new StringBuilder();
 
         if (chatHistoryRecords.Any())
         {
-            sb.AppendLine("\n\n")
-              .AppendLine(string.Join("\n", chatHistoryRecords.Select(record => $@"{(record.Role == ChatHistoryRecord.ChatHistoryRecordRole.User ? @" - USER" : @" - ASSISTANT")}: {record.Content}")))
-              ;
+            sb.AppendLine(string.Join("\n\n", chatHistoryRecords.Select(record => $@"{(record.Role == ChatHistoryRecord.ChatHistoryRecordRole.User ? @" - ME" : @" - YOU")}: {record.Content}")));
         }
 
-        return sb.AppendLine("<<END CHAT HISTORY>>").ToString();
+        return sb.ToString();
     }
 
     private string BuildSystemPrompt(string query, string userId, IList<SearchRecord> searchRecords)
     {
         return searchRecords.Count > 0
             ? $$"""
-                <|system|>
+                <|user|>Use the following information to answer my question. Each relevant piece of information starts with its unique reference identifier. Do not invent reference identifiers.
+
                 {{BuildContextPromptSection(searchRecords)}}
-                <<BEGIN INSTRUCTION>>
-                Use the previous pieces of information in the context to answer the question below with the following instructions:
-                  1. Select the most relevant information from the context
-                  2. Generate a draft response with every selected piece of information, ensuring they are precise and concise, following these rules:
-                    2a. Information from a context must always use this format: <information>[$<CONTEXT ID >$]
-                    2b. Information from multiple contexts must always use this format: <information>[$CONTEXT ID$], [$CONTEXT ID $], [$CONTEXT ID $],...                    
-                    2c. Remember that each context ID is always the number between dollar signs and then brackets, e.g. for a `CONTEXT ID 9` the format must be [$9$]
-                    2d. Do not create context IDs that are not present in the context.
-                    3d. Do not repeat the same context ID in the same piece of information.
-                  3. Avoid repeating the same information in your response.
-                  4. Generate your final response after adjusting it to increase accuracy and relevant
-                  5. Now only show your final response! Do not provide any explanations or details
-                <<END INSTRUCTION>>
-                <|end|>
-                <|user|>
-                {{query}}
-                <|end|>
-                <|assistant|>
+                Follow these instructions to create your answer:
+
+                  1. Never use your own knowledge. ONLY use the given information. DO NOT hallucinate or make up any information.
+                  2. Select the most relevant information and follow it with its corresponding reference identifier.
+                  3. DO NOT repeat information in your answer.
+                  4. ONLY show your final response! DO NOT provide anything else, like explanations or details.
+
+                For example, with the following contexts:
+
+                 [^1^]: The sky is blue.
+                 ---
+                 [^2^]: The grass is green.
+                 ---
+                 [^3^]: The sun is yellow.
+                 ---
+
+                If I ask you "What color is the sky?" you should generate the following response: "The sky is blue[^1^]."
+                If I ask you "What color is the sky and the sun?" you should generate the following response: "The sky is blue[^1^] and the sun is yellow[^3^]."
+
+                My question is: {{query}}<|end|><|assistant|>
                 """
             : $$"""
-                <|system|>
+                <|user|>This is our chat history:
+
                 {{BuildChatHistoryPromptSection(configuration.ChatHistoryService.Retrieve(userId))}}
-                <<BEGIN INSTRUCTION>>
-                Use the chat history to answer the question below with the following instructions:
-                    1. Select the most relevant information from the context
-                    2. If the chat history does not contain the answer, do not try to make up one and just return `I'm sorry, I don't know about that!` and stop processing.
-                    3. Generate a draft response ensuring it is precise and concise
-                    3. Avoid repeating the same information in your response.
-                    5. Generate your final response after adjusting it to increase accuracy and relevant
-                    6. Now only show your final response! Do not provide any explanations or details
-                <<END INSTRUCTION>>
-                <|end|>
-                <|user|>
-                {{query}}
-                <|end|>
-                <|assistant|>
+                        
+                NEVER use your own knowledge. ONLY use information from chat history. Use the chat history above to generate a brief and concise answer to my question. If you can't just say that you don't know. My question is: {{query}}<|end|><|assistant|>
                 """;
     }
 
